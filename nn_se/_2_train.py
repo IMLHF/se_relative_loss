@@ -152,8 +152,8 @@ def main():
   sess.run(init)
 
   # region validation before training
-  train_epoch_loss_lst = []
-  val_epoch_loss_lst = []
+  # train_epoch_loss_lst = []
+  # val_epoch_loss_lst = []
   sess.run(val_inputs.initializer)
   evalOutputs_prev = eval_one_epoch(sess, val_model)
   misc_utils.print_log("                                            "
@@ -164,21 +164,21 @@ def main():
                                                                evalOutputs_prev.cost_time)
   misc_utils.print_log(val_msg, train_log_file)
 
-  init_trainset_loss = eval_one_epoch(sess, train_model)
-  misc_utils.print_log("                                            "
-                       "                                        \n\n",
-                       train_log_file, no_time=True)
-  misc_utils.print_log("Trainset initial loss: %.4F, Cost time:%.4Fs.\n" % (init_trainset_loss.avg_loss,
-                                                                            init_trainset_loss.cost_time),
-                       train_log_file)
-  train_epoch_loss_lst.append(init_trainset_loss.avg_loss)
-  val_epoch_loss_lst.append(evalOutputs_prev.avg_loss)
+  # sess.run(train_inputs.initializer)
+  # init_trainset_loss = eval_one_epoch(sess, train_model)
+  # misc_utils.print_log("                                            "
+  #                      "                                        \n\n",
+  #                      train_log_file, no_time=True)
+  # misc_utils.print_log("Trainset initial loss: %.4F, Cost time:%.4Fs.\n" % (init_trainset_loss.avg_loss,
+  #                                                                           init_trainset_loss.cost_time),
+  #                      train_log_file)
+  # train_epoch_loss_lst.append(init_trainset_loss.avg_loss)
+  # val_epoch_loss_lst.append(evalOutputs_prev.avg_loss)
 
   assert PARAM.s_epoch > 0, 'start epoch > 0 is required.'
   model_abandon_time = 0
   for epoch in range(PARAM.s_epoch, PARAM.max_epoch+1):
     misc_utils.print_log("\n\n", train_log_file, no_time=True)
-    misc_utils.print_log("losses: "+str(PARAM.loss_name)+"\n", train_log_file)
     misc_utils.print_log("  Epoch %03d:\n" % epoch, train_log_file)
 
     # train
@@ -199,8 +199,8 @@ def main():
         train_log_file)
 
     # save avg_loss
-    train_epoch_loss_lst.append(trainOutputs.avg_loss)
-    val_epoch_loss_lst.append(evalOutputs.avg_loss)
+    # train_epoch_loss_lst.append(trainOutputs.avg_loss)
+    # val_epoch_loss_lst.append(evalOutputs.avg_loss)
 
     # save or abandon ckpt
     ckpt_name = PARAM().config_name()+('_iter%04d_trloss%.4f_valloss%.4f_lr%.2e_duration%ds' % (
@@ -234,12 +234,15 @@ def main():
       misc_utils.print_log(msg, train_log_file)
       break
 
-  lossJsonf = misc_utils.log_dir().joinpath('losses.json')
-  losses_dict = {
-    "train_loss": train_epoch_loss_lst,
-    "val_loss": val_epoch_loss_lst,
-  }
-  json.dump(losses_dict, str(lossJsonf))
+  # lossJsonf = misc_utils.log_dir().joinpath('losses.json')
+  # min_valloss_epoch = val_epoch_loss_lst.index(min(val_epoch_loss_lst))
+  # losses_dict = {
+  #   "train_loss": train_epoch_loss_lst,
+  #   "val_loss": val_epoch_loss_lst,
+  #   "min_valloss_epoch": min_valloss_epoch,
+  #   "min_valloss": val_epoch_loss_lst[min_valloss_epoch],
+  # }
+  # json.dump(losses_dict, str(lossJsonf))
   sess.close()
   misc_utils.print_log("\n", train_log_file, no_time=True)
   msg = '################### Training Done. ###################\n'
