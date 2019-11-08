@@ -102,10 +102,16 @@ class Module(object):
     # nn forward
     forward_outputs = self.forward(mixed_wav_batch)
     self._est_clean_wav_batch = forward_outputs[-1]
+    self._set_clean_spec_batch = forward_outputs[-2]
+    self._est_clean_mag_batch = forward_outputs[-3]
 
     trainable_variables = tf.compat.v1.trainable_variables()
     self.save_variables.extend([var for var in trainable_variables])
     self.saver = tf.compat.v1.train.Saver(self.save_variables, max_to_keep=PARAM.max_keep_ckpt, save_relative_paths=True)
+
+    # other calculate node
+    self._calc_mag_ph = tf.compat.v1.placeholder(tf.float32, [None, None], name='calc_mag_ph')
+    self._calc_mag = tf.abs(misc_utils.tf_batch_stft(self._calc_mag_ph, PARAM.frame_length, PARAM.frame_step))
 
     if mode == PARAM.MODEL_INFER_KEY:
       return
@@ -116,10 +122,16 @@ class Module(object):
     # self.noise_wav_batch = mixed_wav_batch - clean_wav_batch
     # self.noise_spec_batch = misc_utils.tf_batch_stft(self.noise_wav_batch, PARAM.frame_length, PARAM.frame_step)
     # self.nosie_mag_batch = tf.math.abs(self.noise_spec_batch)
-    if PARAM.use_wav_as_feature:
-      self.clean_mag_batch = self.clean_spec_batch
+    self.clean_mag_batch = tf.math.abs(self.clean_spec_batch) # mag label
+    self.clean_angle_batch = tf.math.angle(self.clean_spec_batch)
+    if PARAM.mask_type == "IRM":
+      print("Use IRM")
+      pass
+    elif PARAM.mask_type == "PSM":
+      print("Use PSM")
+      self.clean_mag_batch *= tf.math.cos(self.mixed_angle_batch - self.clean_angle_batch)
     else:
-      self.clean_mag_batch = tf.math.abs(self.clean_spec_batch) # mag label
+      raise ValueError('mask type %s error.' % PARAM.mask_type)
 
     self._se_loss = self.get_loss(forward_outputs)
 
@@ -178,16 +190,15 @@ class Module(object):
     else:
       outputs = tf.reshape(outputs, [-1, self.variables.N_RNN_CELL])
     outputs = self.variables.out_fc(outputs)
+    if PARAM.ReLU_outputs:
+      outputs = tf.nn.relu(outputs)
     outputs = tf.reshape(outputs, [_batch_size, -1, PARAM.fft_dot])
     return outputs
 
 
   def real_networks_forward(self, mixed_wav_batch):
     mixed_spec_batch = misc_utils.tf_batch_stft(mixed_wav_batch, PARAM.frame_length, PARAM.frame_step)
-    if PARAM.use_wav_as_feature:
-      mixed_mag_batch = mixed_spec_batch
-    else:
-      mixed_mag_batch = tf.math.abs(mixed_spec_batch)
+    mixed_mag_batch = tf.math.abs(mixed_spec_batch)
     self.mixed_angle_batch = tf.math.angle(mixed_spec_batch)
     training = (self.mode == PARAM.MODEL_TRAIN_KEY)
     mask = self.CNN_RNN_FC(mixed_mag_batch, training)
@@ -197,12 +208,9 @@ class Module(object):
     elif PARAM.net_out == 'spectrum':
       est_clean_mag_batch = mask
     else:
-      raise ValueError('net_out type error.')
+      raise ValueError('net_out %s type error.' % PARAM.net_out)
 
-    if PARAM.use_wav_as_feature:
-      est_clean_spec_batch = est_clean_mag_batch
-    else:
-      est_clean_spec_batch = tf.complex(est_clean_mag_batch, 0.0) * tf.exp(tf.complex(0.0, self.mixed_angle_batch)) # complex
+    est_clean_spec_batch = tf.complex(est_clean_mag_batch, 0.0) * tf.exp(tf.complex(0.0, self.mixed_angle_batch)) # complex
     _mixed_wav_len = tf.shape(mixed_wav_batch)[-1]
     _est_clean_wav_batch = misc_utils.tf_batch_istft(est_clean_spec_batch, PARAM.frame_length, PARAM.frame_step)
     est_clean_wav_batch = tf.slice(_est_clean_wav_batch, [0,0], [-1, _mixed_wav_len]) # if stft.pad_end=True, so est_wav may be longger than mixed.
@@ -272,3 +280,19 @@ class Module(object):
   @property
   def est_clean_wav_batch(self):
     return self._est_clean_wav_batch
+
+  @property
+  def est_clean_spec_batch(self):
+    return self._est_clean_spec_batch
+
+  @property
+  def est_clean_mag_batch(self):
+    return self._est_clean_mag_batch
+
+  @property
+  def calc_mag(self):
+    return self._calc_mag
+
+  @property
+  def calc_mag_ph(self):
+    return self._calc_mag_ph
