@@ -20,40 +20,40 @@ from .. import audio
 # import pesq binary
 PESQ_PATH = os.path.split(os.path.realpath(__file__))[0]
 if 'Linux' in platform.system():
-    PESQ_PATH = os.path.join(PESQ_PATH, 'pesq.ubuntu16.exe')
+  PESQ_PATH = os.path.join(PESQ_PATH, 'pesq.ubuntu16.exe')
 else:
-    PESQ_PATH = os.path.join(PESQ_PATH, 'pesq.win10.exe')
+  PESQ_PATH = os.path.join(PESQ_PATH, 'pesq.win10.exe')
 
 
 def calc_pesq(ref_sig, deg_sig, samplerate, is_file=False):
 
-    if 'Windows' in platform.system():
-        raise NotImplementedError
+  if 'Windows' in platform.system():
+      raise NotImplementedError
 
-    if is_file:
-        output = os.popen('%s +%d %s %s' % (PESQ_PATH, samplerate, ref_sig, deg_sig))
-        msg = output.read()
-    else:
-        tmp_ref = tempfile.NamedTemporaryFile(suffix='.wav', delete=True)
-        tmp_deg = tempfile.NamedTemporaryFile(suffix='.wav', delete=True)
-        # librosa.output.write_wav(tmp_ref.name, ref_sig, samplerate)
-        # librosa.output.write_wav(tmp_deg.name, deg_sig, samplerate)
-        audio.write_audio(tmp_ref.name, ref_sig, samplerate)
-        audio.write_audio(tmp_deg.name, deg_sig, samplerate)
-        output = os.popen('%s +%d %s %s' % (PESQ_PATH, samplerate, tmp_ref.name, tmp_deg.name))
-        msg = output.read()
-        tmp_ref.close()
-        tmp_deg.close()
-        # os.unlink(tmp_ref.name)
-        # os.unlink(tmp_deg.name)
-    score = msg.split('Prediction : PESQ_MOS = ')
-    # print(msg)
-    # exit(0)
-    # print(score)
-    if len(score)<=1:
-      print('calculate error.')
-      return 2.0
-    return float(score[1][:-1])
+  if is_file:
+      output = os.popen('%s +%d %s %s' % (PESQ_PATH, samplerate, ref_sig, deg_sig))
+      msg = output.read()
+  else:
+      tmp_ref = tempfile.NamedTemporaryFile(suffix='.wav', delete=True)
+      tmp_deg = tempfile.NamedTemporaryFile(suffix='.wav', delete=True)
+      # librosa.output.write_wav(tmp_ref.name, ref_sig, samplerate)
+      # librosa.output.write_wav(tmp_deg.name, deg_sig, samplerate)
+      audio.write_audio(tmp_ref.name, ref_sig, samplerate)
+      audio.write_audio(tmp_deg.name, deg_sig, samplerate)
+      output = os.popen('%s +%d %s %s' % (PESQ_PATH, samplerate, tmp_ref.name, tmp_deg.name))
+      msg = output.read()
+      tmp_ref.close()
+      tmp_deg.close()
+      # os.unlink(tmp_ref.name)
+      # os.unlink(tmp_deg.name)
+  score = msg.split('Prediction : PESQ_MOS = ')
+  # print(msg)
+  # exit(0)
+  # print(score)
+  if len(score)<=1:
+    print('calculate error.')
+    return 2.0
+  return float(score[1][:-1])
 
 
 def calc_stoi(ref_sig, deg_sig, samplerate):
@@ -61,14 +61,29 @@ def calc_stoi(ref_sig, deg_sig, samplerate):
 
 
 def calc_sdr(ref_sig, deg_sig, samplerate):
-    """Calculate Source-to-Distortion Ratio(SDR).
-    NOTE: one wav or batch wav.
-    NOTE: bss_eval_sources is very very slow.
-    Args:
-        src_ref: numpy.ndarray, [C, T] or [T], src_ref and src_deg must be same dimention.
-        src_deg: numpy.ndarray, [C, T] or [T], reordered by best PIT permutation
-    Returns:
-        SDR
-    """
-    sdr, sir, sar, popt = bss_eval_sources(ref_sig, deg_sig)
-    return sdr[0]
+  """Calculate Source-to-Distortion Ratio(SDR).
+  NOTE: one wav or batch wav.
+  NOTE: bss_eval_sources is very very slow.
+  Args:
+      src_ref: numpy.ndarray, [C, T] or [T], src_ref and src_deg must be same dimention.
+      src_deg: numpy.ndarray, [C, T] or [T], reordered by best PIT permutation
+  Returns:
+      SDR
+  """
+  sdr, sir, sar, popt = bss_eval_sources(ref_sig, deg_sig)
+  return sdr[0]
+
+ssnr_min = -40
+ssnr_max = 40
+min_pf = np.finfo(np.float32).tiny
+
+def calc_SegSNR(ref_sig, deg_sig, frame_size, frame_shift):
+    ref_frame = librosa.util.frame(ref_sig, frame_length=frame_size, hop_length=frame_shift)
+    deg_frame = librosa.util.frame(deg_sig, frame_length=frame_size, hop_length=frame_shift)
+    noise_frame = ref_frame - deg_frame
+    ref_energy = np.sum(ref_frame ** 2, axis=-1) + min_pf
+    noise_energy = np.sum(noise_frame ** 2, axis=-1) + min_pf
+    ssnr = 10 * np.log10(ref_energy / noise_energy)
+    ssnr[ssnr < ssnr_min] = ssnr_min
+    ssnr[ssnr > ssnr_max] = ssnr_max
+    return np.mean(ssnr)
