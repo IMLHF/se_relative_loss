@@ -37,6 +37,7 @@ class CNN_RNN_FC_REAL_MASK_MODEL(Module):
     ## frequency domain loss
     self.real_net_mag_mse = losses.batch_time_fea_real_mse(est_clean_mag_batch, self.clean_mag_batch)
     self.real_net_reMagMse = losses.batch_real_relativeMSE(est_clean_mag_batch, self.clean_mag_batch, PARAM.relative_loss_AFD)
+    self.real_net_HardReMagMse = losses.batch_real_hard_relativeMSE(est_clean_mag_batch, self.clean_mag_batch, PARAM.relative_loss_AFD)
     self.real_net_spec_mse = losses.batch_time_fea_complex_mse(est_clean_spec_batch, self.clean_spec_batch)
     self.real_net_reSpecMse = losses.batch_complex_relativeMSE(est_clean_spec_batch, self.clean_spec_batch, PARAM.relative_loss_AFD)
     self.real_net_specTCosSimV1 = losses.batch_complexspec_timeaxis_cos_sim_V1(est_clean_spec_batch, self.clean_spec_batch) # *0.167
@@ -69,6 +70,7 @@ class CNN_RNN_FC_REAL_MASK_MODEL(Module):
       loss_t = {
         'real_net_mag_mse': self.real_net_mag_mse,
         'real_net_reMagMse': self.real_net_reMagMse,
+        'real_net_HardReMagMse': self.real_net_HardReMagMse,
         'real_net_spec_mse': self.real_net_spec_mse,
         'real_net_reSpecMse': self.real_net_reSpecMse,
         'real_net_wav_L1': self.real_net_wav_L1,
