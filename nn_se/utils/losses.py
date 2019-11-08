@@ -41,6 +41,16 @@ def batch_real_relativeMSE(y1, y2, axis_fit_degree, index_=2.0):
   cost = tf.reduce_mean(tf.reduce_sum(tf.pow(relative_loss, index_), 0))
   return cost
 
+def batch_real_hard_relativeMSE(y1, y2, axis_fit_degree, index_=2.0):
+  # y1, y2 : [batch, time, feature]
+  # refer_sum = tf.maximum(tf.abs(y1)+tf.abs(y2),1e-12)
+  # small_val_debuff = tf.pow(refer_sum*axis_fit_degree*1.0,-1.0)+1.0-tf.pow(axis_fit_degree*1.0,-1.0)
+  # relative_loss = tf.abs(y1-y2)/refer_sum/small_val_debuff
+  refer = (tf.abs(y1)+tf.abs(y2)) + 1.0/axis_fit_degree
+  relative_loss = tf.abs(y1-y2)/refer
+  cost = tf.reduce_mean(tf.reduce_sum(tf.pow(relative_loss, index_), 0))
+  return cost
+
 def batch_complex_relativeMSE(y1, y2, axis_fit_degree, index_=2.0):
   """
   y1: complex, [batch, time, fft_dot]
