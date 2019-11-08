@@ -10,17 +10,11 @@ from ..FLAGS import PARAM
 
 
 def tf_batch_stft(batch_wav, frame_length, frame_step):
-  if PARAM.use_wav_as_feature:
-    feature = tf.signal.frame(batch_wav, frame_length, frame_step, pad_end=True)
-    return feature
   stft = tf.signal.stft(batch_wav, frame_length, frame_step, pad_end=True)
   return stft
 
 
 def tf_batch_istft(batch_stft, frame_length, frame_step):
-  if PARAM.use_wav_as_feature:
-    feature = tf.signal.overlap_and_add(batch_stft, frame_step)
-    return feature
   istft = tf.signal.inverse_stft(batch_stft, frame_length, frame_step)
   return istft
 
