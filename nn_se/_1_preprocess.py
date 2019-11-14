@@ -131,8 +131,10 @@ def generate_tfrecords_using_meta(sub_dataset_name):
     param_list.append([s_site, e_site, i_processor])
 
   func = partial(_gen_tfrecords_minprocessor, meta_list=meta_list, tfrecords_dir=tfrecords_dir)
-  job = multiprocessing.Pool(PARAM.n_processor_gen_tfrecords).imap(func, param_list)
+  pool = multiprocessing.Pool(PARAM.n_processor_gen_tfrecords)
+  job = pool.imap(func, param_list)
   list(tqdm(job, sub_dataset_name, len(param_list), unit="tfrecords", ncols=60))
+  pool.close()
 
   print("Generate %s set tfrecords over, cost time %06ds\n\n" % (sub_dataset_name, time.time()-gen_s_time), flush=True)
 
