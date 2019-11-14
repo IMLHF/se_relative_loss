@@ -1,6 +1,6 @@
 import tensorflow as tf
 import os
-import numpy as numpy
+import numpy as np
 import time
 import collections
 from pathlib import Path
@@ -34,16 +34,26 @@ def train_one_epoch(sess, train_model, train_log_file):
   minbatch_time = time.time()
   one_batch_time = time.time()
 
+  # total_mean_mixed = np.zeros([129])
+  # total_var_mixed = np.zeros([129])
+  # total_mean_clean = np.zeros([129])
+  # total_var_clean = np.zeros([129])
+
   total_i = PARAM.n_train_set_records//PARAM.batch_size
   while True:
     try:
       (
-          _, loss, lr, global_step,
+          _,
+          loss, lr, global_step,
+          # debug_clean,
+          # debug_mixed,
       ) = sess.run([
           train_model.train_op,
           train_model.loss,
           train_model.lr,
           train_model.global_step,
+          # train_model.debug_clean,
+          # train_model.debug_mixed,
       ])
       tr_loss += loss
       i += 1
@@ -61,11 +71,31 @@ def train_one_epoch(sess, train_model, train_log_file):
               )
         minbatch_time = time.time()
         misc_utils.print_log(msg, train_log_file)
+
+      # print(np.shape(debug_clean))
+      # clean_mean = np.mean(debug_clean, axis=(0,1))
+      # mixed_mean = np.mean(debug_mixed, axis=(0,1))
+      # total_mean_clean += clean_mean
+      # total_mean_mixed += mixed_mean
+      # clean_var = np.var(debug_clean, axis=(0,1))
+      # mixed_var = np.var(debug_mixed, axis=(0,1))
+      # total_var_clean += clean_var
+      # total_var_mixed += mixed_var
+      # print("mean: ", np.mean(debug_clean, axis=(0,1)), np.mean(debug_mixed, axis=(0,1)), flush=True)
+      # print("var : ", np.var(debug_clean, axis=(0,1)), np.var(debug_mixed, axis=(0,1)), "\n", flush=True)
     except tf.errors.OutOfRangeError:
       break
   print("\r", end="")
   e_time = time.time()
   tr_loss /= i
+  # total_mean_clean /= i
+  # total_var_clean /= i
+  # total_mean_mixed /= i
+  # total_var_mixed /= i
+  # np.save('clean_mean', total_mean_clean)
+  # np.save('clean_var', total_var_clean)
+  # np.save('mixed_mean', total_mean_mixed)
+  # np.save('mixed_var', total_var_mixed)
   return TrainOutputs(avg_loss=tr_loss,
                       cost_time=e_time-s_time,
                       lr=lr)
@@ -94,7 +124,7 @@ def eval_one_epoch(sess, val_model):
           # val_model.debug_mag,
       ])
       # print("\n", loss, real_net_mag_mse, real_net_spec_mse, real_net_wavL1, real_net_wavL2, flush=True)
-      import numpy as np
+      # import numpy as np
       # print(np.mean(debug_mag), np.var(debug_mag), np.min(debug_mag), np.max(debug_mag), loss, flush=True)
       total_loss += loss
       i += 1

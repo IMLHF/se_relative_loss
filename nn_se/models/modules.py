@@ -123,6 +123,8 @@ class Module(object):
     # self.noise_spec_batch = misc_utils.tf_batch_stft(self.noise_wav_batch, PARAM.frame_length, PARAM.frame_step)
     # self.nosie_mag_batch = tf.math.abs(self.noise_spec_batch)
     self.clean_mag_batch = tf.math.abs(self.clean_spec_batch) # mag label
+    # self.debug_clean = self.clean_mag_batch
+    # self.debug_mixed = self.mixed_wav_batch
     self.clean_angle_batch = tf.math.angle(self.clean_spec_batch)
     if PARAM.mask_type == "IRM":
       print("Use IRM")
