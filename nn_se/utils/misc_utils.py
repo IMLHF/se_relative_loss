@@ -49,7 +49,13 @@ def ckpt_dir():
 
 
 def test_log_file_dir(mix_snr):
-  str_snr = "test_snr(+%02d).log" % mix_snr if mix_snr >= 0 else "test_snr(-%02d).log" % mix_snr
+  str_snr = "test_snr(+%02d).log" % mix_snr if mix_snr >= 0 else "test_snr(%03d).log" % mix_snr
+  log_dir_ = log_dir()
+  return log_dir_.joinpath(str_snr)
+
+
+def test_json_file_dir(mix_snr):
+  str_snr = "test_snr(+%02d).json" % mix_snr if mix_snr >= 0 else "test_snr(%03d).json" % mix_snr
   log_dir_ = log_dir()
   return log_dir_.joinpath(str_snr)
 
