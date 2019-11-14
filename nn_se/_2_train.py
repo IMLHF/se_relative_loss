@@ -80,7 +80,7 @@ class EvalOutputs(
 def eval_one_epoch(sess, val_model):
   val_s_time = time.time()
   total_loss = 0.0
-  ont_batch_time = time.time()
+  one_batch_time = time.time()
 
   i = 0
   total_i = PARAM.n_val_set_records//PARAM.batch_size
@@ -94,17 +94,17 @@ def eval_one_epoch(sess, val_model):
           # val_model.debug_mag,
       ])
       # print("\n", loss, real_net_mag_mse, real_net_spec_mse, real_net_wavL1, real_net_wavL2, flush=True)
-      # import numpy as np
+      import numpy as np
       # print(np.mean(debug_mag), np.var(debug_mag), np.min(debug_mag), np.max(debug_mag), loss, flush=True)
       total_loss += loss
       i += 1
       print("\r", end="")
       print("validate: %d/%d, cost %.2fs, loss %.2f"
             "          " % (
-                i, total_i, time.time()-ont_batch_time, loss
+                i, total_i, time.time()-one_batch_time, loss
             ),
             flush=True, end="")
-      ont_batch_time = time.time()
+      one_batch_time = time.time()
     except tf.errors.OutOfRangeError:
       break
 
