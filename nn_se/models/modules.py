@@ -123,6 +123,14 @@ class Module(object):
     # self.noise_spec_batch = misc_utils.tf_batch_stft(self.noise_wav_batch, PARAM.frame_length, PARAM.frame_step)
     # self.nosie_mag_batch = tf.math.abs(self.noise_spec_batch)
     self.clean_mag_batch = tf.math.abs(self.clean_spec_batch) # mag label
+    if PARAM.mnv_mag_feature:
+      if hasattr(self, 'clean_mean') and hasattr(self, 'clean_var'):
+        pass
+      else:
+        import numpy as np
+        self.clean_mean = np.array([[np.load('clean_mean.npy')]])
+        self.clean_var = np.array([[np.load('clean_var.npy')]])
+      self.clean_mag_batch = (self.clean_mag_batch - self.clean_mean) / self.clean_var
     # self.debug_clean = self.clean_mag_batch
     # self.debug_mixed = self.mixed_wav_batch
     self.clean_angle_batch = tf.math.angle(self.clean_spec_batch)
@@ -201,6 +209,15 @@ class Module(object):
   def real_networks_forward(self, mixed_wav_batch):
     mixed_spec_batch = misc_utils.tf_batch_stft(mixed_wav_batch, PARAM.frame_length, PARAM.frame_step)
     mixed_mag_batch = tf.math.abs(mixed_spec_batch)
+    if PARAM.mnv_mag_feature:
+      if hasattr(self, 'mixed_mean') and hasattr(self, 'mixed_var'):
+        pass
+      else:
+        import numpy as np
+        self.mixed_mean = np.array([[np.load('mixed_mean.npy')]])
+        self.mixed_var = np.array([[np.load('mixed_var.npy')]])
+      mixed_mag_batch = (mixed_mag_batch - self.mixed_mean) / self.mixed_var
+
     self.mixed_angle_batch = tf.math.angle(mixed_spec_batch)
     training = (self.mode == PARAM.MODEL_TRAIN_KEY)
     mask = self.CNN_RNN_FC(mixed_mag_batch, training)
@@ -211,6 +228,15 @@ class Module(object):
       est_clean_mag_batch = mask
     else:
       raise ValueError('net_out %s type error.' % PARAM.net_out)
+
+    if PARAM.mnv_mag_feature:
+      if hasattr(self, 'clean_mean') and hasattr(self, 'clean_var'):
+        pass
+      else:
+        import numpy as np
+        self.clean_mean = np.array([[np.load('clean_mean.npy')]])
+        self.clean_var = np.array([[np.load('clean_var.npy')]])
+      est_clean_mag_batch = est_clean_mag_batch * self.clean_var + self.clean_mean
 
     est_clean_spec_batch = tf.complex(est_clean_mag_batch, 0.0) * tf.exp(tf.complex(0.0, self.mixed_angle_batch)) # complex
     _mixed_wav_len = tf.shape(mixed_wav_batch)[-1]
