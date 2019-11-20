@@ -241,12 +241,12 @@ def eval_testSet_by_meta(mix_SNR, save_test_records=False):
   if not save_test_records:
     test_records_save_dir = None
   else:
-    _dir = misc_utils.test_records_save_dir()
+    _dir = misc_utils.test_records_save_dir(mix_SNR)
     test_records_save_dir = str(_dir)
     if _dir.exists():
       import shutil
       shutil.rmtree(str(_dir))
-    _dir.mkdir()
+    _dir.mkdir(parents=True)
   eval_testSet_by_list(meta_list, mix_SNR, test_records_save_dir)
 
 

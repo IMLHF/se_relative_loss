@@ -33,9 +33,10 @@ def test_code_out_dir():
   return _dir
 
 
-def test_records_save_dir():
+def test_records_save_dir(mixSNR):
   exp_config_name_dir = exp_configName_dir()
-  return exp_config_name_dir.joinpath('test_records')
+  snr_str = "SNR(%03d)" % mixSNR if mixSNR < 0 else "SNR(%02d)"
+  return exp_config_name_dir.joinpath('test_records', snr_str)
 
 
 def hparams_file_dir():
