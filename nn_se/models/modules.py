@@ -130,7 +130,8 @@ class Module(object):
         import numpy as np
         self.clean_mean = np.array([[np.load('clean_mean.npy')]])
         self.clean_var = np.array([[np.load('clean_var.npy')]])
-      self.clean_mag_batch = (self.clean_mag_batch - self.clean_mean) / self.clean_var
+        self.clean_std = np.sqrt(self.clean_var)
+      self.clean_mag_batch = (self.clean_mag_batch - self.clean_mean) / self.clean_std
     # self.debug_clean = self.clean_mag_batch
     # self.debug_mixed = self.mixed_wav_batch
     self.clean_angle_batch = tf.math.angle(self.clean_spec_batch)
@@ -216,7 +217,8 @@ class Module(object):
         import numpy as np
         self.mixed_mean = np.array([[np.load('mixed_mean.npy')]])
         self.mixed_var = np.array([[np.load('mixed_var.npy')]])
-      mixed_mag_batch = (mixed_mag_batch - self.mixed_mean) / self.mixed_var
+        self.mixed_std = np.sqrt(self.mixed_var)
+      mixed_mag_batch = (mixed_mag_batch - self.mixed_mean) / self.mixed_std
 
     self.mixed_angle_batch = tf.math.angle(mixed_spec_batch)
     training = (self.mode == PARAM.MODEL_TRAIN_KEY)
@@ -236,7 +238,8 @@ class Module(object):
         import numpy as np
         self.clean_mean = np.array([[np.load('clean_mean.npy')]])
         self.clean_var = np.array([[np.load('clean_var.npy')]])
-      est_clean_mag_batch = est_clean_mag_batch * self.clean_var + self.clean_mean
+        self.clean_std = np.sqrt(self.clean_var)
+      est_clean_mag_batch = est_clean_mag_batch * self.clean_std + self.clean_mean
 
     est_clean_spec_batch = tf.complex(est_clean_mag_batch, 0.0) * tf.exp(tf.complex(0.0, self.mixed_angle_batch)) # complex
     _mixed_wav_len = tf.shape(mixed_wav_batch)[-1]
