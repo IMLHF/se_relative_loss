@@ -34,15 +34,15 @@ class JSONEncoder(json.JSONEncoder):
 
 class TestsetEvalAns(
     collections.namedtuple("TestsetEvalAns",
-                           ("pesq_noisy_mean", "pesq_noisy_var",
-                            "stoi_noisy_mean", "stoi_noisy_var",
-                            "sdr_noisy_mean", "sdr_noisy_var",
-                            "ssnr_noisy_mean", "ssnr_noisy_var",
-                            "pesq_enhanced_mean", "pesq_enhanced_var",
-                            "stoi_enhanced_mean", "stoi_enhanced_var",
-                            "sdr_enhanced_mean", "sdr_enhanced_var",
-                            "ssnr_enhanced_mean", "ssnr_enhanced_var",
-                            "mag_v_range_reMAE_mean", "mag_v_range_reMAE_var"))):
+                           ("pesq_noisy_mean", "pesq_noisy_std",
+                            "stoi_noisy_mean", "stoi_noisy_std",
+                            "sdr_noisy_mean", "sdr_noisy_std",
+                            "ssnr_noisy_mean", "ssnr_noisy_std",
+                            "pesq_enhanced_mean", "pesq_enhanced_std",
+                            "stoi_enhanced_mean", "stoi_enhanced_std",
+                            "sdr_enhanced_mean", "sdr_enhanced_std",
+                            "ssnr_enhanced_mean", "ssnr_enhanced_std",
+                            "mag_v_range_reMAE_mean", "mag_v_range_reMAE_std"))):
   pass
 
 
@@ -121,11 +121,21 @@ def eval_one_record(clean_dir_and_noise_dir, mix_snr, save_dir=None):
   pesq_noisy = calc_pesq(clean_wav, mixed_wav, PARAM.sampling_rate)
   stoi_noisy = calc_stoi(clean_wav, mixed_wav, PARAM.sampling_rate)
   sdr_noisy = calc_sdr(clean_wav, mixed_wav, PARAM.sampling_rate)
-  ssnr_noisy = calc_SegSNR(clean_wav, mixed_wav, PARAM.frame_length, PARAM.frame_length//2)
+  # pesq_noisy = 0
+  # stoi_noisy = 0
+  # sdr_noisy = 0
+  ssnr_noisy = calc_SegSNR(clean_wav/np.max(np.abs(clean_wav)),
+                           mixed_wav/np.max(np.abs(mixed_wav)),
+                           PARAM.frame_length, PARAM.frame_length)
   pesq_enhanced = calc_pesq(clean_wav, enhanced_wav, PARAM.sampling_rate)
   stoi_enhanced = calc_stoi(clean_wav, enhanced_wav, PARAM.sampling_rate)
-  ssnr_enhanced = calc_SegSNR(clean_wav, enhanced_wav, PARAM.frame_length, PARAM.frame_length//2)
   sdr_enhanced = calc_sdr(clean_wav, enhanced_wav, PARAM.sampling_rate)
+  # pesq_enhanced = 0
+  # stoi_enhanced = 0
+  # sdr_enhanced = 0
+  ssnr_enhanced = calc_SegSNR(clean_wav/np.max(np.abs(clean_wav)),
+                              enhanced_wav/np.max(np.abs(enhanced_wav)),
+                              PARAM.frame_length, PARAM.frame_length)
 
   mag_v_range_reMAE = get_mag_v_range_reMAE(clean_mag, enhanced_mag, PARAM.mag_reMAE_v_range)
 
@@ -176,7 +186,7 @@ def eval_testSet_by_list(clean_noise_pair_list, mix_snr, save_dir=None):
   ssnr_enhanced_vec = np.array([eval_ans_.ssnr_enhanced for eval_ans_ in eval_ans_list], dtype=np.float32)
   mag_v_range_reMAE_vec = np.stack([eval_ans_.mag_v_range_reMAE for eval_ans_ in eval_ans_list], axis=0)
   mag_v_range_reMAE_mean = np.mean(mag_v_range_reMAE_vec, axis=0)
-  mag_v_range_reMAE_var = np.var(mag_v_range_reMAE_vec, axis=0)
+  mag_v_range_reMAE_std = np.std(mag_v_range_reMAE_vec, axis=0)
 
   testAns_dict = {
     'clean_wav_lst': clean_wavs_lst,
@@ -194,15 +204,15 @@ def eval_testSet_by_list(clean_noise_pair_list, mix_snr, save_dir=None):
   json.dump(testAns_dict, test_json_f, cls=JSONEncoder)
   test_json_f.close()
 
-  testAns = TestsetEvalAns(pesq_noisy_mean=np.mean(pesq_noisy_vec), pesq_noisy_var=np.var(pesq_noisy_vec),
-                           stoi_noisy_mean=np.mean(stoi_noisy_vec), stoi_noisy_var=np.var(stoi_noisy_vec),
-                           sdr_noisy_mean=np.mean(sdr_noisy_vec), sdr_noisy_var=np.var(sdr_noisy_vec),
-                           ssnr_noisy_mean=np.mean(ssnr_noisy_vec), ssnr_noisy_var=np.var(ssnr_noisy_vec),
-                           pesq_enhanced_mean=np.mean(pesq_enhanced_vec), pesq_enhanced_var=np.var(pesq_enhanced_vec),
-                           stoi_enhanced_mean=np.mean(stoi_enhanced_vec), stoi_enhanced_var=np.var(stoi_enhanced_vec),
-                           sdr_enhanced_mean=np.mean(sdr_enhanced_vec), sdr_enhanced_var=np.var(sdr_enhanced_vec),
-                           ssnr_enhanced_mean=np.mean(ssnr_enhanced_vec), ssnr_enhanced_var=np.var(ssnr_enhanced_vec),
-                           mag_v_range_reMAE_mean=mag_v_range_reMAE_mean, mag_v_range_reMAE_var=mag_v_range_reMAE_var)
+  testAns = TestsetEvalAns(pesq_noisy_mean=np.mean(pesq_noisy_vec), pesq_noisy_std=np.std(pesq_noisy_vec),
+                           stoi_noisy_mean=np.mean(stoi_noisy_vec), stoi_noisy_std=np.std(stoi_noisy_vec),
+                           sdr_noisy_mean=np.mean(sdr_noisy_vec), sdr_noisy_std=np.std(sdr_noisy_vec),
+                           ssnr_noisy_mean=np.mean(ssnr_noisy_vec), ssnr_noisy_std=np.std(ssnr_noisy_vec),
+                           pesq_enhanced_mean=np.mean(pesq_enhanced_vec), pesq_enhanced_std=np.std(pesq_enhanced_vec),
+                           stoi_enhanced_mean=np.mean(stoi_enhanced_vec), stoi_enhanced_std=np.std(stoi_enhanced_vec),
+                           sdr_enhanced_mean=np.mean(sdr_enhanced_vec), sdr_enhanced_std=np.std(sdr_enhanced_vec),
+                           ssnr_enhanced_mean=np.mean(ssnr_enhanced_vec), ssnr_enhanced_std=np.std(ssnr_enhanced_vec),
+                           mag_v_range_reMAE_mean=mag_v_range_reMAE_mean, mag_v_range_reMAE_std=mag_v_range_reMAE_std)
 
   misc_utils.print_log("SNR(%d) test over.\n\n" % mix_snr, test_log_file)
   # misc_utils.print_log(str(testAns)+"\n", test_log_file)
@@ -212,13 +222,13 @@ def eval_testSet_by_list(clean_noise_pair_list, mix_snr, save_dir=None):
          " sdr: %.3f ± %.3f -> %.3f ± %.3f\n"
          " ssnr: %.3f ± %.3f -> %.3f ± %.3f\n"
          " magVRangeMse_mean %s\n"
-         " magVRangeMse_var  %s\n" % (
+         " magVRangeMse_std  %s\n" % (
              mix_snr,
-             testAns.pesq_noisy_mean, testAns.pesq_noisy_var, testAns.pesq_enhanced_mean, testAns.pesq_enhanced_var,
-             testAns.stoi_noisy_mean, testAns.stoi_noisy_var, testAns.stoi_enhanced_mean, testAns.stoi_enhanced_var,
-             testAns.sdr_noisy_mean, testAns.sdr_noisy_var, testAns.sdr_enhanced_mean, testAns.sdr_enhanced_var,
-             testAns.ssnr_noisy_mean, testAns.ssnr_noisy_var, testAns.ssnr_enhanced_mean, testAns.ssnr_enhanced_var,
-             list(np.around(testAns.mag_v_range_reMAE_mean, decimals=5)), list(np.around(testAns.mag_v_range_reMAE_var, decimals=5))))
+             testAns.pesq_noisy_mean, testAns.pesq_noisy_std, testAns.pesq_enhanced_mean, testAns.pesq_enhanced_std,
+             testAns.stoi_noisy_mean, testAns.stoi_noisy_std, testAns.stoi_enhanced_mean, testAns.stoi_enhanced_std,
+             testAns.sdr_noisy_mean, testAns.sdr_noisy_std, testAns.sdr_enhanced_mean, testAns.sdr_enhanced_std,
+             testAns.ssnr_noisy_mean, testAns.ssnr_noisy_std, testAns.ssnr_enhanced_mean, testAns.ssnr_enhanced_std,
+             list(np.around(testAns.mag_v_range_reMAE_mean, decimals=5)), list(np.around(testAns.mag_v_range_reMAE_std, decimals=5))))
   misc_utils.print_log(msg, test_log_file, no_time=True)
   return testAns, msg
 
