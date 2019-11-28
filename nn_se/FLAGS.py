@@ -111,103 +111,17 @@ class debug(p40):
   no_cnn = True
   model_name = "CNN_RNN_FC_REAL_MASK_MODEL"
 
-class MSE_IRM_ReLU(p40): # done p40
-  no_cnn = True
-  blstm_layers = 2
-  lstm_layers = 0
-  model_name = "CNN_RNN_FC_REAL_MASK_MODEL"
-  mask_type = "IRM"
-  ReLU_outputs = True
-  loss_name = ["real_net_mag_mse"]
+# region delete
 
-class MSE_IRM_ReLU_MVN(p40): # done p40
-  no_cnn = True
-  blstm_layers = 2
-  lstm_layers = 0
-  model_name = "CNN_RNN_FC_REAL_MASK_MODEL"
-  mask_type = "IRM"
-  ReLU_outputs = True
-  loss_name = ["real_net_mag_mse"]
-  mnv_mag_feature = True
-
-class MSE_PSM_ReLU(p40): # done p40
+class WRL_PSM_ReLU_A10(p40): # run
   no_cnn = True
   blstm_layers = 2
   lstm_layers = 0
   model_name = "CNN_RNN_FC_REAL_MASK_MODEL"
   mask_type = "PSM"
   ReLU_outputs = True
-  loss_name = ["real_net_mag_mse"]
-
-class HRL_IRM_ReLU_AINF(p40): # done
-  no_cnn = True
-  blstm_layers = 2
-  lstm_layers = 0
-  model_name = "CNN_RNN_FC_REAL_MASK_MODEL"
-  mask_type = "IRM"
-  ReLU_outputs = True
-  loss_name = ["real_net_HardReMagMse"]
-  relative_loss_AFD = 1e18
-
-class HRL_PSM_ReLU_AINF(p40): # done
-  no_cnn = True
-  blstm_layers = 2
-  lstm_layers = 0
-  model_name = "CNN_RNN_FC_REAL_MASK_MODEL"
-  mask_type = "PSM"
-  ReLU_outputs = True
-  loss_name = ["real_net_HardReMagMse"]
-  relative_loss_AFD = 1e18
-
-class HRL_PSM_ReLU_A05(p40): # done
-  no_cnn = True
-  blstm_layers = 2
-  lstm_layers = 0
-  model_name = "CNN_RNN_FC_REAL_MASK_MODEL"
-  mask_type = "PSM"
-  ReLU_outputs = True
-  loss_name = ["real_net_HardReMagMse"]
-  relative_loss_AFD = 5.0
-
-class HRL_PSM_ReLU_A10(p40): # done
-  no_cnn = True
-  blstm_layers = 2
-  lstm_layers = 0
-  model_name = "CNN_RNN_FC_REAL_MASK_MODEL"
-  mask_type = "PSM"
-  ReLU_outputs = True
-  loss_name = ["real_net_HardReMagMse"]
+  loss_name = ["real_net_reMagMse"]
   relative_loss_AFD = 10.0
-
-class HRL_PSM_ReLU_A50(p40): # done
-  no_cnn = True
-  blstm_layers = 2
-  lstm_layers = 0
-  model_name = "CNN_RNN_FC_REAL_MASK_MODEL"
-  mask_type = "PSM"
-  ReLU_outputs = True
-  loss_name = ["real_net_HardReMagMse"]
-  relative_loss_AFD = 50.0
-
-class HRL_PSM_ReLU_A100(p40): # done
-  no_cnn = True
-  blstm_layers = 2
-  lstm_layers = 0
-  model_name = "CNN_RNN_FC_REAL_MASK_MODEL"
-  mask_type = "PSM"
-  ReLU_outputs = True
-  loss_name = ["real_net_HardReMagMse"]
-  relative_loss_AFD = 100.0
-
-class HRL_PSM_ReLU_A500(p40): # done
-  no_cnn = True
-  blstm_layers = 2
-  lstm_layers = 0
-  model_name = "CNN_RNN_FC_REAL_MASK_MODEL"
-  mask_type = "PSM"
-  ReLU_outputs = True
-  loss_name = ["real_net_HardReMagMse"]
-  relative_loss_AFD = 500.0
 
 class WRL_PSM_ReLU_A50(p40): # done
   no_cnn = True
@@ -269,6 +183,264 @@ class WRL_IRM_ReLU_A500(p40): # run
   loss_name = ["real_net_reMagMse"]
   relative_loss_AFD = 500.0
 
-PARAM = WRL_IRM_ReLU_A500
+# endregion
+
+class MSE_IRM_ReLU(p40): # done p40
+  no_cnn = True
+  blstm_layers = 2
+  lstm_layers = 0
+  model_name = "CNN_RNN_FC_REAL_MASK_MODEL"
+  mask_type = "IRM"
+  ReLU_outputs = True
+  loss_name = ["real_net_mag_mse"]
+
+class MSE_IRM_ReLU_MVN(p40): # done p40
+  no_cnn = True
+  blstm_layers = 2
+  lstm_layers = 0
+  model_name = "CNN_RNN_FC_REAL_MASK_MODEL"
+  mask_type = "IRM"
+  ReLU_outputs = True
+  loss_name = ["real_net_mag_mse"]
+  mnv_mag_feature = True
+
+class MSE_PSM_ReLU(p40): # done p40
+  no_cnn = True
+  blstm_layers = 2
+  lstm_layers = 0
+  model_name = "CNN_RNN_FC_REAL_MASK_MODEL"
+  mask_type = "PSM"
+  ReLU_outputs = True
+  loss_name = ["real_net_mag_mse"]
+
+class HRL_IRM_ReLU_AINF(p40): # done
+  no_cnn = True
+  blstm_layers = 2
+  lstm_layers = 0
+  model_name = "CNN_RNN_FC_REAL_MASK_MODEL"
+  mask_type = "IRM"
+  ReLU_outputs = True
+  loss_name = ["real_net_HardReMagMse"]
+  relative_loss_AFD = 1e18
+
+class HRL_PSM_ReLU_AINF(p40): # done
+  no_cnn = True
+  blstm_layers = 2
+  lstm_layers = 0
+  model_name = "CNN_RNN_FC_REAL_MASK_MODEL"
+  mask_type = "PSM"
+  ReLU_outputs = True
+  loss_name = ["real_net_HardReMagMse"]
+  relative_loss_AFD = 1e18
+
+class HRL_IRM_ReLU_A05(p40): # done
+  no_cnn = True
+  blstm_layers = 2
+  lstm_layers = 0
+  model_name = "CNN_RNN_FC_REAL_MASK_MODEL"
+  mask_type = "IRM"
+  ReLU_outputs = True
+  loss_name = ["real_net_HardReMagMse"]
+  relative_loss_AFD = 5.0
+
+class HRL_IRM_ReLU_A10(p40): # done
+  no_cnn = True
+  blstm_layers = 2
+  lstm_layers = 0
+  model_name = "CNN_RNN_FC_REAL_MASK_MODEL"
+  mask_type = "IRM"
+  ReLU_outputs = True
+  loss_name = ["real_net_HardReMagMse"]
+  relative_loss_AFD = 10.0
+
+class HRL_IRM_ReLU_A50(p40): # done
+  no_cnn = True
+  blstm_layers = 2
+  lstm_layers = 0
+  model_name = "CNN_RNN_FC_REAL_MASK_MODEL"
+  mask_type = "IRM"
+  ReLU_outputs = True
+  loss_name = ["real_net_HardReMagMse"]
+  relative_loss_AFD = 50.0
+
+class HRL_IRM_ReLU_A100(p40): # done
+  no_cnn = True
+  blstm_layers = 2
+  lstm_layers = 0
+  model_name = "CNN_RNN_FC_REAL_MASK_MODEL"
+  mask_type = "IRM"
+  ReLU_outputs = True
+  loss_name = ["real_net_HardReMagMse"]
+  relative_loss_AFD = 100.0
+
+class HRL_IRM_ReLU_A500(p40): # run
+  no_cnn = True
+  blstm_layers = 2
+  lstm_layers = 0
+  model_name = "CNN_RNN_FC_REAL_MASK_MODEL"
+  mask_type = "IRM"
+  ReLU_outputs = True
+  loss_name = ["real_net_HardReMagMse"]
+  relative_loss_AFD = 500.0
+
+class HRL_PSM_ReLU_A05(p40): # done
+  no_cnn = True
+  blstm_layers = 2
+  lstm_layers = 0
+  model_name = "CNN_RNN_FC_REAL_MASK_MODEL"
+  mask_type = "PSM"
+  ReLU_outputs = True
+  loss_name = ["real_net_HardReMagMse"]
+  relative_loss_AFD = 5.0
+
+class HRL_PSM_ReLU_A10(p40): # done
+  no_cnn = True
+  blstm_layers = 2
+  lstm_layers = 0
+  model_name = "CNN_RNN_FC_REAL_MASK_MODEL"
+  mask_type = "PSM"
+  ReLU_outputs = True
+  loss_name = ["real_net_HardReMagMse"]
+  relative_loss_AFD = 10.0
+
+class HRL_PSM_ReLU_A50(p40): # done
+  no_cnn = True
+  blstm_layers = 2
+  lstm_layers = 0
+  model_name = "CNN_RNN_FC_REAL_MASK_MODEL"
+  mask_type = "PSM"
+  ReLU_outputs = True
+  loss_name = ["real_net_HardReMagMse"]
+  relative_loss_AFD = 50.0
+
+class HRL_PSM_ReLU_A100(p40): # done
+  no_cnn = True
+  blstm_layers = 2
+  lstm_layers = 0
+  model_name = "CNN_RNN_FC_REAL_MASK_MODEL"
+  mask_type = "PSM"
+  ReLU_outputs = True
+  loss_name = ["real_net_HardReMagMse"]
+  relative_loss_AFD = 100.0
+
+class HRL_PSM_ReLU_A500(p40): # done
+  no_cnn = True
+  blstm_layers = 2
+  lstm_layers = 0
+  model_name = "CNN_RNN_FC_REAL_MASK_MODEL"
+  mask_type = "PSM"
+  ReLU_outputs = True
+  loss_name = ["real_net_HardReMagMse"]
+  relative_loss_AFD = 500.0
+
+class MSE_IRM_Real(p40): # run p40
+  no_cnn = True
+  blstm_layers = 2
+  lstm_layers = 0
+  model_name = "CNN_RNN_FC_REAL_MASK_MODEL"
+  mask_type = "IRM"
+  ReLU_outputs = False
+  loss_name = ["real_net_mag_mse"]
+
+class MSE_PSM_Real(p40): # run p40
+  no_cnn = True
+  blstm_layers = 2
+  lstm_layers = 0
+  model_name = "CNN_RNN_FC_REAL_MASK_MODEL"
+  mask_type = "PSM"
+  ReLU_outputs = False
+  loss_name = ["real_net_mag_mse"]
+
+class HRL_IRM_Real_A05(p40): # run
+  no_cnn = True
+  blstm_layers = 2
+  lstm_layers = 0
+  model_name = "CNN_RNN_FC_REAL_MASK_MODEL"
+  mask_type = "IRM"
+  ReLU_outputs = False
+  loss_name = ["real_net_HardReMagMse"]
+  relative_loss_AFD = 5.0
+
+class HRL_IRM_Real_A10(p40): # run
+  no_cnn = True
+  blstm_layers = 2
+  lstm_layers = 0
+  model_name = "CNN_RNN_FC_REAL_MASK_MODEL"
+  mask_type = "IRM"
+  ReLU_outputs = False
+  loss_name = ["real_net_HardReMagMse"]
+  relative_loss_AFD = 10.0
+
+class HRL_IRM_Real_A50(p40): # run
+  no_cnn = True
+  blstm_layers = 2
+  lstm_layers = 0
+  model_name = "CNN_RNN_FC_REAL_MASK_MODEL"
+  mask_type = "IRM"
+  ReLU_outputs = False
+  loss_name = ["real_net_HardReMagMse"]
+  relative_loss_AFD = 50.0
+
+class HRL_IRM_Real_A100(p40): # run
+  no_cnn = True
+  blstm_layers = 2
+  lstm_layers = 0
+  model_name = "CNN_RNN_FC_REAL_MASK_MODEL"
+  mask_type = "IRM"
+  ReLU_outputs = False
+  loss_name = ["real_net_HardReMagMse"]
+  relative_loss_AFD = 100.0
+
+class HRL_IRM_Real_A500(p40): # run
+  no_cnn = True
+  blstm_layers = 2
+  lstm_layers = 0
+  model_name = "CNN_RNN_FC_REAL_MASK_MODEL"
+  mask_type = "IRM"
+  ReLU_outputs = False
+  loss_name = ["real_net_HardReMagMse"]
+  relative_loss_AFD = 500.0
+
+class HRL_PSM_Real_A05(p40): # run
+  no_cnn = True
+  blstm_layers = 2
+  lstm_layers = 0
+  model_name = "CNN_RNN_FC_REAL_MASK_MODEL"
+  mask_type = "PSM"
+  ReLU_outputs = False
+  loss_name = ["real_net_HardReMagMse"]
+  relative_loss_AFD = 5.0
+
+class HRL_PSM_Real_A10(p40): # run
+  no_cnn = True
+  blstm_layers = 2
+  lstm_layers = 0
+  model_name = "CNN_RNN_FC_REAL_MASK_MODEL"
+  mask_type = "PSM"
+  ReLU_outputs = False
+  loss_name = ["real_net_HardReMagMse"]
+  relative_loss_AFD = 10.0
+
+class HRL_PSM_Real_A50(p40): # run
+  no_cnn = True
+  blstm_layers = 2
+  lstm_layers = 0
+  model_name = "CNN_RNN_FC_REAL_MASK_MODEL"
+  mask_type = "PSM"
+  ReLU_outputs = False
+  loss_name = ["real_net_HardReMagMse"]
+  relative_loss_AFD = 50.0
+
+class HRL_PSM_Real_A100(p40): # run
+  no_cnn = True
+  blstm_layers = 2
+  lstm_layers = 0
+  model_name = "CNN_RNN_FC_REAL_MASK_MODEL"
+  mask_type = "PSM"
+  ReLU_outputs = False
+  loss_name = ["real_net_HardReMagMse"]
+  relative_loss_AFD = 100.0
+
+PARAM = HRL_PSM_Real_A100
 
 # CUDA_VISIBLE_DEVICES=1 OMP_NUM_THREADS=4 python -m xxx._2_train
