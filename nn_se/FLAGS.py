@@ -441,6 +441,16 @@ class HRL_PSM_Real_A100(p40): # run
   loss_name = ["real_net_HardReMagMse"]
   relative_loss_AFD = 100.0
 
-PARAM = HRL_PSM_Real_A100
+class HRL_PSM_Real_A500(p40): # run
+  no_cnn = True
+  blstm_layers = 2
+  lstm_layers = 0
+  model_name = "CNN_RNN_FC_REAL_MASK_MODEL"
+  mask_type = "PSM"
+  ReLU_outputs = False
+  loss_name = ["real_net_HardReMagMse"]
+  relative_loss_AFD = 500.0
+
+PARAM = HRL_PSM_Real_A500
 
 # CUDA_VISIBLE_DEVICES=1 OMP_NUM_THREADS=4 python -m xxx._2_train
