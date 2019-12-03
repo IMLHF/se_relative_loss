@@ -13,6 +13,11 @@ class SMG(
                            ("session", "model", "graph"))):
   pass
 
+class EnOut(
+    collections.namedtuple("EnOut",
+                           ("enhanced_wav", "enhanced_mag", "mask"))):
+  pass
+
 def build_SMG(ckpt_name=None, batch_size=None, finalizeG=True):
   g = tf.Graph()
   with g.as_default():
@@ -37,7 +42,7 @@ def build_SMG(ckpt_name=None, batch_size=None, finalizeG=True):
   sess.run(init)
 
   if ckpt_name:
-    ckpt_dir = str(misc_utils.ckpt_dir().joinpath(ckpt_name))
+    ckpt_dir = tf.train.get_checkpoint_state(str(ckpt_name)).model_checkpoint_path
   else:
     ckpt_dir = tf.train.get_checkpoint_state(str(misc_utils.ckpt_dir())).model_checkpoint_path
 
@@ -53,12 +58,15 @@ def build_SMG(ckpt_name=None, batch_size=None, finalizeG=True):
 
 def enhance_one_wav(smg: SMG, wav):
   wav_batch = np.array([wav], dtype=np.float32)
-  enhanced_wav_batch, enhanced_mag_batch = smg.session.run([smg.model.est_clean_wav_batch,
-                                                            smg.model.est_clean_mag_batch],
-                                                           feed_dict={smg.model.mixed_wav_batch_in: wav_batch})
+  enhanced_wav_batch, enhanced_mag_batch, mask = smg.session.run([smg.model.est_clean_wav_batch,
+                                                                  smg.model.est_clean_mag_batch,
+                                                                  smg.model.est_mask],
+                                                                 feed_dict={smg.model.mixed_wav_batch_in: wav_batch})
   enhanced_wav = enhanced_wav_batch[0]
   enhanced_mag = enhanced_mag_batch[0]
-  return enhanced_wav, enhanced_mag
+  return EnOut(enhanced_wav=enhanced_wav,
+               enhanced_mag=enhanced_mag,
+               mask=mask[0])
 
 def enhance_for_test(smg: SMG, wav_mixed, wav_clean):
   mixed_wav_batch = np.array([wav_mixed], dtype=np.float32)

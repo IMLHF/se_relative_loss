@@ -225,6 +225,7 @@ class Module(object):
     mask = self.CNN_RNN_FC(mixed_mag_batch, training)
 
     if PARAM.net_out == 'mask':
+      self._mask = mask
       est_clean_mag_batch = tf.multiply(mask, mixed_mag_batch) # mag estimated
     elif PARAM.net_out == 'spectrum':
       est_clean_mag_batch = mask
@@ -319,6 +320,10 @@ class Module(object):
   @property
   def est_clean_mag_batch(self):
     return self._est_clean_mag_batch
+
+  @property
+  def est_mask(self):
+    return self._mask
 
   @property
   def calc_mag(self):
