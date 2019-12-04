@@ -9,6 +9,7 @@ import numpy as np
 import librosa
 import scipy
 import tqdm
+from nn_se.utils.assess.core import calc_pesq, calc_stoi, calc_sdr, calc_SegSNR
 
 smg = None
 
@@ -16,7 +17,7 @@ noisy_and_ref_list = [
   ('exp/paper_sample/0db_mix_ref/p265_015_nfree_0678.wav', 'exp/paper_sample/0db_mix_ref/p265_015.wav'),
   ('exp/paper_sample/0db_mix_ref/p265_026_nfree_0571.wav', 'exp/paper_sample/0db_mix_ref/p265_026.wav'),
   ('exp/paper_sample/0db_mix_ref/p265_038_nfree_0758.wav', 'exp/paper_sample/0db_mix_ref/p265_038.wav'),
-  ('exp/paper_sample/0db_mix_ref/p274_110_nfree_0663.wav', 'exp/paper_sample/0db_mix_ref/p274_110.wav'),
+  ('exp/paper_sample/0db_mix_ref/p267_087_nfree_0663.wav', 'exp/paper_sample/0db_mix_ref/p267_087.wav'),
 ]
 
 def magnitude_spectrum_librosa_stft(signal, NFFT, overlap):
@@ -29,6 +30,7 @@ def magnitude_spectrum_librosa_stft(signal, NFFT, overlap):
   return tmp.T
 
 def enhance_and_calcMetrics(noisy_and_ref):
+  figsize = (5, 2.8)
   noisy_wav_dir, ref_wav_dir = noisy_and_ref
   noisy_wav, sr = audio.read_audio(noisy_wav_dir)
   ref_wav, sr = audio.read_audio(ref_wav_dir) if ref_wav_dir else (None, sr)
@@ -43,14 +45,35 @@ def enhance_and_calcMetrics(noisy_and_ref):
   # enhanced_mag = enhanced_out.enhanced_mag
   mask = enhanced_out.mask
 
-  ## plot mask, enhanced_mag; save enhanced_wav
+  ## plot mask, enhanced_mag; save enhanced_wav; calc metrics [pesq]
   name_prefix = "%s_%s" % (config_name, noisy_stem)
 
+  # calc metrics [pesq_noisy->pesq_enhanced | pesqi, stoi, sdr, ssnr]
+  pesq_noisy = calc_pesq(ref_wav, noisy_wav, sr)
+  pesq_enhanced = calc_pesq(ref_wav, enhanced_wav, sr)
+  pesqi = pesq_enhanced - pesq_noisy
+  stoi_noisy = calc_stoi(ref_wav, noisy_wav, sr)
+  stoi_enhanced = calc_stoi(ref_wav, enhanced_wav, sr)
+  stoii = stoi_enhanced - stoi_noisy
+  sdr_noisy = calc_sdr(ref_wav, noisy_wav, sr)
+  sdr_enhanced = calc_sdr(ref_wav, enhanced_wav, sr)
+  sdri = sdr_enhanced - sdr_noisy
+  ssnr_noisy = calc_SegSNR(ref_wav/np.max(ref_wav), noisy_wav/np.max(noisy_wav), 256, 256)
+  ssnr_enhanced = calc_SegSNR(ref_wav/np.max(ref_wav), enhanced_wav/np.max(enhanced_wav), 256, 256)
+  ssnri = ssnr_enhanced - ssnr_noisy
+
+  metrics_eval_ans_f = "%s_metrics_eval_ans.log" % config_name
+  with open(os.path.join(save_dir, metrics_eval_ans_f), 'a') as f:
+    f.write(name_prefix+":\n")
+    f.write("    pesq: %.3f->%.3f, pesqi: %.3f.\n" % (pesq_noisy, pesq_enhanced, pesqi))
+    f.write("    stoi: %.3f->%.3f, stoii: %.3f.\n" % (stoi_noisy, stoi_enhanced, stoii))
+    f.write("    sdr : %.3f->%.3f, sdri : %.3f.\n" % (sdr_noisy, sdr_enhanced, sdri))
+    f.write("    ssnr: %.3f->%.3f, ssnri: %.3f.\n" % (ssnr_noisy, ssnr_enhanced, ssnri))
+
   # mask
-  # mask = np.log(mask+1)
-  plt.figure(figsize=(7, 4))
+  plt.figure(figsize=figsize)
   plt.pcolormesh(mask.T, vmin=-0.2, vmax=1.5)
-  plt.subplots_adjust(top=0.98, right=1)
+  plt.subplots_adjust(top=0.98, right=1, left=0.17, bottom=0.21)
   plt.xlabel('Frame')
   plt.ylabel('Frequency')
   plt.colorbar()
@@ -60,11 +83,11 @@ def enhance_and_calcMetrics(noisy_and_ref):
 
   # enhanced_mag
   enhanced_mag = magnitude_spectrum_librosa_stft(enhanced_wav, 256, 128)
-  enhanced_mag = np.log(enhanced_mag+1e-2)
-  plt.figure(figsize=(7, 4))
+  enhanced_mag = np.log(enhanced_mag*3+1e-2)
+  plt.figure(figsize=figsize)
   # print(np.max(enhanced_mag), np.min(enhanced_mag))
   plt.pcolormesh(enhanced_mag.T, cmap='hot', vmin=-4.5, vmax=2.5)
-  plt.subplots_adjust(top=0.98, right=1)
+  plt.subplots_adjust(top=0.98, right=1, left=0.17, bottom=0.21)
   # plt.title('STFT Magnitude')
   plt.xlabel('Frame')
   plt.ylabel('Frequency')
@@ -78,28 +101,27 @@ def enhance_and_calcMetrics(noisy_and_ref):
 
   # noisy_mag
   noisy_mag_file = os.path.join(save_dir, "%s_%s" % (noisy_stem, "noisy_mag.jpg"))
-  if not (os.path.exists(noisy_mag_file) and os.path.isfile(noisy_mag_file)):
-    noisy_mag = magnitude_spectrum_librosa_stft(noisy_wav, 256, 128)
-    noisy_mag = np.log(noisy_mag+1e-2)
-    plt.figure(figsize=(7, 4))
-    plt.pcolormesh(noisy_mag.T, cmap='hot', vmin=-4.5, vmax=2.5)
-    plt.subplots_adjust(top=0.98, right=1)
-    # plt.title('STFT Magnitude')
-    plt.xlabel('Frame')
-    plt.ylabel('Frequency')
-    plt.colorbar()
-    plt.savefig(noisy_mag_file)
-    # plt.show()
-    plt.close()
+  noisy_mag = magnitude_spectrum_librosa_stft(noisy_wav, 256, 128)
+  noisy_mag = np.log(noisy_mag*3+1e-2)
+  plt.figure(figsize=figsize)
+  plt.pcolormesh(noisy_mag.T, cmap='hot', vmin=-4.5, vmax=2.5)
+  plt.subplots_adjust(top=0.98, right=1, left=0.17, bottom=0.21)
+  # plt.title('STFT Magnitude')
+  plt.xlabel('Frame')
+  plt.ylabel('Frequency')
+  plt.colorbar()
+  plt.savefig(noisy_mag_file)
+  # plt.show()
+  plt.close()
 
   # clean_mag
   clean_mag_file = os.path.join(save_dir, "%s_%s" % (noisy_stem, "clean_mag.jpg"))
-  if ref_wav is not None and (not (os.path.exists(clean_mag_file) and os.path.isfile(clean_mag_file))):
+  if ref_wav is not None:
     clean_mag = magnitude_spectrum_librosa_stft(ref_wav, 256, 128)
-    clean_mag = np.log(clean_mag+1e-2)
-    plt.figure(figsize=(7, 4))
+    clean_mag = np.log(clean_mag*3+1e-2)
+    plt.figure(figsize=figsize)
     plt.pcolormesh(clean_mag.T, cmap='hot', vmin=-4.5, vmax=2.5)
-    plt.subplots_adjust(top=0.98, right=1)
+    plt.subplots_adjust(top=0.98, right=1, left=0.17, bottom=0.21)
     # plt.title('STFT Magnitude')
     plt.xlabel('Frame')
     plt.ylabel('Frequency')
@@ -109,5 +131,6 @@ def enhance_and_calcMetrics(noisy_and_ref):
     plt.close()
 
 if __name__ == "__main__":
+  # enhance_and_calcMetrics(noisy_and_ref_list[0])
   for noisy_and_ref in tqdm.tqdm(noisy_and_ref_list, ncols=100):
     enhance_and_calcMetrics(noisy_and_ref)
