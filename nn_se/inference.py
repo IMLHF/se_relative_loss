@@ -68,16 +68,10 @@ def enhance_one_wav(smg: SMG, wav):
                enhanced_mag=enhanced_mag,
                mask=mask[0])
 
-def enhance_for_test(smg: SMG, wav_mixed, wav_clean):
+def enhance_for_test(smg: SMG, wav_mixed):
   mixed_wav_batch = np.array([wav_mixed], dtype=np.float32)
-  clean_wav_batch = np.array([wav_clean], dtype=np.float32)
-  enhanced_wav_batch, enhanced_mag_batch, clean_mag_batch = smg.session.run(
-      [smg.model.est_clean_wav_batch,
-       smg.model.est_clean_mag_batch,
-       smg.model.calc_mag],
-      feed_dict={smg.model.mixed_wav_batch_in: mixed_wav_batch,
-                 smg.model.calc_mag_ph: clean_wav_batch})
+  enhanced_wav_batch = smg.session.run(
+      smg.model.est_clean_wav_batch,
+      feed_dict={smg.model.mixed_wav_batch_in: mixed_wav_batch})
   enhanced_wav = enhanced_wav_batch[0]
-  enhanced_mag = enhanced_mag_batch[0]
-  clean_mag = clean_mag_batch[0]
-  return enhanced_wav, enhanced_mag, clean_mag
+  return enhanced_wav
