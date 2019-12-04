@@ -64,7 +64,7 @@ class RecordEvalAns(
 def avg_mag_mae(ref_mag, enc_mag):
   if np.sum(np.shape(ref_mag)) == 0:
     return 0.0
-  abs_sum = np.abs(ref_mag)+np.abs(enc_mag)
+  abs_sum = np.abs(ref_mag)+np.abs(enc_mag)+1e-8
   ans = np.mean(np.abs(ref_mag - enc_mag)/abs_sum)
   return ans
 
@@ -121,21 +121,23 @@ def eval_one_record(clean_dir_and_noise_dir, mix_snr, save_dir=None):
   pesq_noisy = calc_pesq(clean_wav, mixed_wav, PARAM.sampling_rate)
   stoi_noisy = calc_stoi(clean_wav, mixed_wav, PARAM.sampling_rate)
   sdr_noisy = calc_sdr(clean_wav, mixed_wav, PARAM.sampling_rate)
-  # pesq_noisy = 0
-  # stoi_noisy = 0
-  # sdr_noisy = 0
   ssnr_noisy = calc_SegSNR(clean_wav/np.max(np.abs(clean_wav)),
                            mixed_wav/np.max(np.abs(mixed_wav)),
                            PARAM.frame_length, PARAM.frame_length)
+  # pesq_noisy = 0
+  # stoi_noisy = 0
+  # sdr_noisy = 0
+  # ssnr_noisy = 0
   pesq_enhanced = calc_pesq(clean_wav, enhanced_wav, PARAM.sampling_rate)
   stoi_enhanced = calc_stoi(clean_wav, enhanced_wav, PARAM.sampling_rate)
   sdr_enhanced = calc_sdr(clean_wav, enhanced_wav, PARAM.sampling_rate)
-  # pesq_enhanced = 0
-  # stoi_enhanced = 0
-  # sdr_enhanced = 0
   ssnr_enhanced = calc_SegSNR(clean_wav/np.max(np.abs(clean_wav)),
                               enhanced_wav/np.max(np.abs(enhanced_wav)),
                               PARAM.frame_length, PARAM.frame_length)
+  # pesq_enhanced = 0
+  # stoi_enhanced = 0
+  # sdr_enhanced = 0
+  # ssnr_enhanced = 0
 
   mag_v_range_reMAE = get_mag_v_range_reMAE(clean_mag, enhanced_mag, PARAM.mag_reMAE_v_range)
 
