@@ -42,7 +42,8 @@ class TestsetEvalAns(
                             "stoi_enhanced_mean", "stoi_enhanced_std",
                             "sdr_enhanced_mean", "sdr_enhanced_std",
                             "ssnr_enhanced_mean", "ssnr_enhanced_std",
-                            "mag_v_range_reMAE_mean", "mag_v_range_reMAE_std"))):
+                            "mag_v_range_reMAE_noisy_mean", "mag_v_range_reMAE_noisy_std",
+                            "mag_v_range_reMAE_enhanced_mean", "mag_v_range_reMAE_enhanced_std"))):
   pass
 
 
@@ -57,14 +58,15 @@ class RecordEvalAns(
                             "stoi_enhanced",
                             "sdr_enhanced",
                             "ssnr_enhanced",
-                            "mag_v_range_reMAE"))):
+                            "mag_v_range_reMAE_noisy",
+                            "mag_v_range_reMAE_enhanced",))):
   pass
 
 
 def avg_mag_mae(ref_mag, enc_mag):
   if np.sum(np.shape(ref_mag)) == 0:
     return 0.0
-  abs_sum = np.abs(ref_mag)+np.abs(enc_mag)+1e-8
+  abs_sum = np.abs(ref_mag)+np.abs(enc_mag)+1e-6
   ans = np.mean(np.abs(ref_mag - enc_mag)/abs_sum)
   return ans
 
@@ -109,42 +111,49 @@ def eval_one_record(clean_dir_and_noise_dir, mix_snr, save_dir=None):
   mixed_wav, w_clean, w_noise = audio.mix_wav_by_SNR(clean_wav, noise_wav, mix_snr)
   clean_wav = clean_wav * w_clean
   noise_wav = noise_wav * w_noise
-  enhanced_wav, enhanced_mag, clean_mag = enhance_for_test(smg, mixed_wav, clean_wav)
+  enhanced_wav = enhance_for_test(smg, mixed_wav)
+  mixed_wav_batch = np.array([mixed_wav], dtype=np.float32)
+  clean_wav_batch = np.array([clean_wav], dtype=np.float32)
+  enhanced_wav_batch = np.array([enhanced_wav], dtype=np.float32)
+  clean_mag = smg.session.run(smg.model.calc_mag, feed_dict={smg.model.calc_mag_ph: clean_wav_batch})[0]
+  mixed_mag = smg.session.run(smg.model.calc_mag, feed_dict={smg.model.calc_mag_ph: mixed_wav_batch})[0]
+  enhanced_mag = smg.session.run(smg.model.calc_mag, feed_dict={smg.model.calc_mag_ph: enhanced_wav_batch})[0]
 
-  clean_dir_name = Path(clean_dir).stem
-  noise_dir_name = Path(noise_dir).stem
-  if save_dir is not None:
-    audio.write_audio(os.path.join(save_dir, clean_dir_name+'.wav'), clean_wav, PARAM.sampling_rate)
-    audio.write_audio(os.path.join(save_dir, clean_dir_name+'_'+noise_dir_name+'.wav'), mixed_wav, PARAM.sampling_rate)
-    audio.write_audio(os.path.join(save_dir, clean_dir_name+'_'+noise_dir_name+'_enhanced.wav'), enhanced_wav, PARAM.sampling_rate)
+  # clean_dir_name = Path(clean_dir).stem
+  # noise_dir_name = Path(noise_dir).stem
+  # if save_dir is not None:
+  #   audio.write_audio(os.path.join(save_dir, clean_dir_name+'.wav'), clean_wav, PARAM.sampling_rate)
+  #   audio.write_audio(os.path.join(save_dir, clean_dir_name+'_'+noise_dir_name+'.wav'), mixed_wav, PARAM.sampling_rate)
+  #   audio.write_audio(os.path.join(save_dir, clean_dir_name+'_'+noise_dir_name+'_enhanced.wav'), enhanced_wav, PARAM.sampling_rate)
 
-  pesq_noisy = calc_pesq(clean_wav, mixed_wav, PARAM.sampling_rate)
-  stoi_noisy = calc_stoi(clean_wav, mixed_wav, PARAM.sampling_rate)
-  sdr_noisy = calc_sdr(clean_wav, mixed_wav, PARAM.sampling_rate)
-  ssnr_noisy = calc_SegSNR(clean_wav/np.max(np.abs(clean_wav)),
-                           mixed_wav/np.max(np.abs(mixed_wav)),
-                           PARAM.frame_length, PARAM.frame_length)
-  # pesq_noisy = 0
-  # stoi_noisy = 0
-  # sdr_noisy = 0
-  # ssnr_noisy = 0
-  pesq_enhanced = calc_pesq(clean_wav, enhanced_wav, PARAM.sampling_rate)
-  stoi_enhanced = calc_stoi(clean_wav, enhanced_wav, PARAM.sampling_rate)
-  sdr_enhanced = calc_sdr(clean_wav, enhanced_wav, PARAM.sampling_rate)
-  ssnr_enhanced = calc_SegSNR(clean_wav/np.max(np.abs(clean_wav)),
-                              enhanced_wav/np.max(np.abs(enhanced_wav)),
-                              PARAM.frame_length, PARAM.frame_length)
-  # pesq_enhanced = 0
-  # stoi_enhanced = 0
-  # sdr_enhanced = 0
-  # ssnr_enhanced = 0
+  # pesq_noisy = calc_pesq(clean_wav, mixed_wav, PARAM.sampling_rate)
+  # stoi_noisy = calc_stoi(clean_wav, mixed_wav, PARAM.sampling_rate)
+  # sdr_noisy = calc_sdr(clean_wav, mixed_wav, PARAM.sampling_rate)
+  # ssnr_noisy = calc_SegSNR(clean_wav/np.max(np.abs(clean_wav)),
+  #                          mixed_wav/np.max(np.abs(mixed_wav)),
+  #                          PARAM.frame_length, PARAM.frame_length)
+  pesq_noisy = 0
+  stoi_noisy = 0
+  sdr_noisy = 0
+  ssnr_noisy = 0
+  # pesq_enhanced = calc_pesq(clean_wav, enhanced_wav, PARAM.sampling_rate)
+  # stoi_enhanced = calc_stoi(clean_wav, enhanced_wav, PARAM.sampling_rate)
+  # sdr_enhanced = calc_sdr(clean_wav, enhanced_wav, PARAM.sampling_rate)
+  # ssnr_enhanced = calc_SegSNR(clean_wav/np.max(np.abs(clean_wav)),
+  #                             enhanced_wav/np.max(np.abs(enhanced_wav)),
+  #                             PARAM.frame_length, PARAM.frame_length)
+  pesq_enhanced = 0
+  stoi_enhanced = 0
+  sdr_enhanced = 0
+  ssnr_enhanced = 0
 
-  mag_v_range_reMAE = get_mag_v_range_reMAE(clean_mag, enhanced_mag, PARAM.mag_reMAE_v_range)
+  mag_v_range_reMAE_noisy = get_mag_v_range_reMAE(clean_mag/np.max(clean_mag), mixed_mag/np.max(mixed_mag), PARAM.mag_reMAE_v_range)
+  mag_v_range_reMAE_enhanced = get_mag_v_range_reMAE(clean_mag/np.max(clean_mag), enhanced_mag/np.max(enhanced_mag), PARAM.mag_reMAE_v_range)
 
   return RecordEvalAns(clean_wav_name=Path(clean_dir).stem, noise_wav_name=Path(noise_dir).stem,
                        pesq_noisy=pesq_noisy, stoi_noisy=stoi_noisy, sdr_noisy=sdr_noisy, ssnr_noisy=ssnr_noisy,
                        pesq_enhanced=pesq_enhanced, stoi_enhanced=stoi_enhanced, sdr_enhanced=sdr_enhanced, ssnr_enhanced=ssnr_enhanced,
-                       mag_v_range_reMAE=mag_v_range_reMAE)
+                       mag_v_range_reMAE_noisy=mag_v_range_reMAE_noisy, mag_v_range_reMAE_enhanced=mag_v_range_reMAE_enhanced)
 
 
 def eval_testSet_by_list(clean_noise_pair_list, mix_snr, save_dir=None):
@@ -186,9 +195,12 @@ def eval_testSet_by_list(clean_noise_pair_list, mix_snr, save_dir=None):
   stoi_enhanced_vec = np.array([eval_ans_.stoi_enhanced for eval_ans_ in eval_ans_list], dtype=np.float32)
   sdr_enhanced_vec = np.array([eval_ans_.sdr_enhanced for eval_ans_ in eval_ans_list], dtype=np.float32)
   ssnr_enhanced_vec = np.array([eval_ans_.ssnr_enhanced for eval_ans_ in eval_ans_list], dtype=np.float32)
-  mag_v_range_reMAE_vec = np.stack([eval_ans_.mag_v_range_reMAE for eval_ans_ in eval_ans_list], axis=0)
-  mag_v_range_reMAE_mean = np.mean(mag_v_range_reMAE_vec, axis=0)
-  mag_v_range_reMAE_std = np.std(mag_v_range_reMAE_vec, axis=0)
+  mag_v_range_reMAE_noisy_vec = np.stack([eval_ans_.mag_v_range_reMAE_noisy for eval_ans_ in eval_ans_list], axis=0)
+  mag_v_range_reMAE_noisy_mean = np.mean(mag_v_range_reMAE_noisy_vec, axis=0)
+  mag_v_range_reMAE_noisy_std = np.std(mag_v_range_reMAE_noisy_vec, axis=0)
+  mag_v_range_reMAE_enhanced_vec = np.stack([eval_ans_.mag_v_range_reMAE_enhanced for eval_ans_ in eval_ans_list], axis=0)
+  mag_v_range_reMAE_enhanced_mean = np.mean(mag_v_range_reMAE_enhanced_vec, axis=0)
+  mag_v_range_reMAE_enhanced_std = np.std(mag_v_range_reMAE_enhanced_vec, axis=0)
 
   testAns_dict = {
     'clean_wav_lst': clean_wavs_lst,
@@ -214,7 +226,10 @@ def eval_testSet_by_list(clean_noise_pair_list, mix_snr, save_dir=None):
                            stoi_enhanced_mean=np.mean(stoi_enhanced_vec), stoi_enhanced_std=np.std(stoi_enhanced_vec),
                            sdr_enhanced_mean=np.mean(sdr_enhanced_vec), sdr_enhanced_std=np.std(sdr_enhanced_vec),
                            ssnr_enhanced_mean=np.mean(ssnr_enhanced_vec), ssnr_enhanced_std=np.std(ssnr_enhanced_vec),
-                           mag_v_range_reMAE_mean=mag_v_range_reMAE_mean, mag_v_range_reMAE_std=mag_v_range_reMAE_std)
+                           mag_v_range_reMAE_noisy_mean=mag_v_range_reMAE_noisy_mean,
+                           mag_v_range_reMAE_noisy_std=mag_v_range_reMAE_noisy_std,
+                           mag_v_range_reMAE_enhanced_mean=mag_v_range_reMAE_enhanced_mean,
+                           mag_v_range_reMAE_enhanced_std=mag_v_range_reMAE_enhanced_std)
 
   misc_utils.print_log("SNR(%d) test over.\n\n" % mix_snr, test_log_file)
   # misc_utils.print_log(str(testAns)+"\n", test_log_file)
@@ -223,14 +238,19 @@ def eval_testSet_by_list(clean_noise_pair_list, mix_snr, save_dir=None):
          " stoi: %.3f ± %.3f -> %.3f ± %.3f\n"
          " sdr: %.3f ± %.3f -> %.3f ± %.3f\n"
          " ssnr: %.3f ± %.3f -> %.3f ± %.3f\n"
-         " magVRangeMse_mean %s\n"
-         " magVRangeMse_std  %s\n" % (
+         " magVRangeMae_noisy_mean %s\n"
+         " magVRangeMae_noisy_std  %s\n"
+         " magVRangeMae_enhanced_std  %s\n"
+         " magVRangeMae_enhanced_std  %s\n" % (
              mix_snr,
              testAns.pesq_noisy_mean, testAns.pesq_noisy_std, testAns.pesq_enhanced_mean, testAns.pesq_enhanced_std,
              testAns.stoi_noisy_mean, testAns.stoi_noisy_std, testAns.stoi_enhanced_mean, testAns.stoi_enhanced_std,
              testAns.sdr_noisy_mean, testAns.sdr_noisy_std, testAns.sdr_enhanced_mean, testAns.sdr_enhanced_std,
              testAns.ssnr_noisy_mean, testAns.ssnr_noisy_std, testAns.ssnr_enhanced_mean, testAns.ssnr_enhanced_std,
-             list(np.around(testAns.mag_v_range_reMAE_mean, decimals=5)), list(np.around(testAns.mag_v_range_reMAE_std, decimals=5))))
+             list(np.around(testAns.mag_v_range_reMAE_noisy_mean, decimals=5)),
+             list(np.around(testAns.mag_v_range_reMAE_noisy_std, decimals=5)),
+             list(np.around(testAns.mag_v_range_reMAE_enhanced_mean, decimals=5)),
+             list(np.around(testAns.mag_v_range_reMAE_enhanced_std, decimals=5))))
   misc_utils.print_log(msg, test_log_file, no_time=True)
   return testAns, msg
 
