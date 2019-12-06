@@ -66,7 +66,7 @@ class RecordEvalAns(
 def avg_mag_mae(ref_mag, enc_mag):
   if np.sum(np.shape(ref_mag)) == 0:
     return 0.0
-  abs_sum = np.abs(ref_mag)+np.abs(enc_mag)+1e-6
+  abs_sum = np.abs(ref_mag)+np.abs(enc_mag)+1e-2
   ans = np.mean(np.abs(ref_mag - enc_mag)/abs_sum)
   return ans
 
@@ -238,19 +238,19 @@ def eval_testSet_by_list(clean_noise_pair_list, mix_snr, save_dir=None):
          " stoi: %.3f ± %.3f -> %.3f ± %.3f\n"
          " sdr: %.3f ± %.3f -> %.3f ± %.3f\n"
          " ssnr: %.3f ± %.3f -> %.3f ± %.3f\n"
-         " magVRangeMae_noisy_mean %s\n"
-         " magVRangeMae_noisy_std  %s\n"
-         " magVRangeMae_enhanced_std  %s\n"
-         " magVRangeMae_enhanced_std  %s\n" % (
+         " RMAERS_noisy_mean    %s\n"
+         " RMAERS_enhanced_mean %s\n"
+         " RMAERS_noisy_std     %s\n"
+         " RMAERS_enhanced_std  %s\n" % (
              mix_snr,
              testAns.pesq_noisy_mean, testAns.pesq_noisy_std, testAns.pesq_enhanced_mean, testAns.pesq_enhanced_std,
              testAns.stoi_noisy_mean, testAns.stoi_noisy_std, testAns.stoi_enhanced_mean, testAns.stoi_enhanced_std,
              testAns.sdr_noisy_mean, testAns.sdr_noisy_std, testAns.sdr_enhanced_mean, testAns.sdr_enhanced_std,
              testAns.ssnr_noisy_mean, testAns.ssnr_noisy_std, testAns.ssnr_enhanced_mean, testAns.ssnr_enhanced_std,
-             list(np.around(testAns.mag_v_range_reMAE_noisy_mean, decimals=5)),
-             list(np.around(testAns.mag_v_range_reMAE_noisy_std, decimals=5)),
-             list(np.around(testAns.mag_v_range_reMAE_enhanced_mean, decimals=5)),
-             list(np.around(testAns.mag_v_range_reMAE_enhanced_std, decimals=5))))
+             list(np.around(testAns.mag_v_range_reMAE_noisy_mean, decimals=3)),
+             list(np.around(testAns.mag_v_range_reMAE_enhanced_mean, decimals=3)),
+             list(np.around(testAns.mag_v_range_reMAE_noisy_std, decimals=3)),
+             list(np.around(testAns.mag_v_range_reMAE_enhanced_std, decimals=3))))
   misc_utils.print_log(msg, test_log_file, no_time=True)
   return testAns, msg
 
