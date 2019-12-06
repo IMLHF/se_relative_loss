@@ -30,7 +30,7 @@ def magnitude_spectrum_librosa_stft(signal, NFFT, overlap):
   return tmp.T
 
 def enhance_and_calcMetrics(noisy_and_ref):
-  figsize = (5, 2.8)
+  figsize = (3.5, 2)
   noisy_wav_dir, ref_wav_dir = noisy_and_ref
   noisy_wav, sr = audio.read_audio(noisy_wav_dir)
   ref_wav, sr = audio.read_audio(ref_wav_dir) if ref_wav_dir else (None, sr)
@@ -70,27 +70,43 @@ def enhance_and_calcMetrics(noisy_and_ref):
     f.write("    sdr : %.3f->%.3f, sdri : %.3f.\n" % (sdr_noisy, sdr_enhanced, sdri))
     f.write("    ssnr: %.3f->%.3f, ssnri: %.3f.\n" % (ssnr_noisy, ssnr_enhanced, ssnri))
 
+  # get x_ticks
+  n_frame = np.shape(mask)[0]
+  n=0
+  i=0
+  x1 = []
+  x2 = []
+  while(n<n_frame):
+    x1.append(n)
+    x2.append(i)
+    n = n+125
+    i = i+1
+
   # mask
   plt.figure(figsize=figsize)
   plt.pcolormesh(mask.T, vmin=-0.2, vmax=1.5)
   plt.subplots_adjust(top=0.98, right=1, left=0.17, bottom=0.21)
-  plt.xlabel('Frame')
-  plt.ylabel('Frequency')
+  plt.xlabel('Time(S)')
+  plt.ylabel('Frequency(Hz)')
+  plt.xticks(x1, x2)
+  plt.yticks((0,33,64,97,129), ("0","1k","2k","3k","4k"))
   plt.colorbar()
   plt.savefig(os.path.join(save_dir,"%s_%s" % (name_prefix, "mask.jpg")))
   # plt.show()
   plt.close()
 
   # enhanced_mag
-  enhanced_mag = magnitude_spectrum_librosa_stft(enhanced_wav, 256, 128)
+  enhanced_mag = magnitude_spectrum_librosa_stft(enhanced_wav, 256, 64*3)
   enhanced_mag = np.log(enhanced_mag*3+1e-2)
   plt.figure(figsize=figsize)
   # print(np.max(enhanced_mag), np.min(enhanced_mag))
   plt.pcolormesh(enhanced_mag.T, cmap='hot', vmin=-4.5, vmax=2.5)
   plt.subplots_adjust(top=0.98, right=1, left=0.17, bottom=0.21)
   # plt.title('STFT Magnitude')
-  plt.xlabel('Frame')
-  plt.ylabel('Frequency')
+  plt.xlabel('Time(S)')
+  plt.ylabel('Frequency(Hz)')
+  plt.xticks(x1, x2)
+  plt.yticks((0,33,64,97,129), ("0","1k","2k","3k","4k"))
   plt.colorbar()
   plt.savefig(os.path.join(save_dir,"%s_%s" % (name_prefix, "enhanced_mag.jpg")))
   # plt.show()
@@ -101,14 +117,16 @@ def enhance_and_calcMetrics(noisy_and_ref):
 
   # noisy_mag
   noisy_mag_file = os.path.join(save_dir, "%s_%s" % (noisy_stem, "noisy_mag.jpg"))
-  noisy_mag = magnitude_spectrum_librosa_stft(noisy_wav, 256, 128)
+  noisy_mag = magnitude_spectrum_librosa_stft(noisy_wav, 256, 64*3)
   noisy_mag = np.log(noisy_mag*3+1e-2)
   plt.figure(figsize=figsize)
   plt.pcolormesh(noisy_mag.T, cmap='hot', vmin=-4.5, vmax=2.5)
   plt.subplots_adjust(top=0.98, right=1, left=0.17, bottom=0.21)
   # plt.title('STFT Magnitude')
-  plt.xlabel('Frame')
-  plt.ylabel('Frequency')
+  plt.xlabel('Time(S)')
+  plt.ylabel('Frequency(Hz)')
+  plt.xticks(x1, x2)
+  plt.yticks((0,33,64,97,129), ("0","1k","2k","3k","4k"))
   plt.colorbar()
   plt.savefig(noisy_mag_file)
   # plt.show()
@@ -117,14 +135,16 @@ def enhance_and_calcMetrics(noisy_and_ref):
   # clean_mag
   clean_mag_file = os.path.join(save_dir, "%s_%s" % (noisy_stem, "clean_mag.jpg"))
   if ref_wav is not None:
-    clean_mag = magnitude_spectrum_librosa_stft(ref_wav, 256, 128)
+    clean_mag = magnitude_spectrum_librosa_stft(ref_wav, 256, 64*3)
     clean_mag = np.log(clean_mag*3+1e-2)
     plt.figure(figsize=figsize)
     plt.pcolormesh(clean_mag.T, cmap='hot', vmin=-4.5, vmax=2.5)
     plt.subplots_adjust(top=0.98, right=1, left=0.17, bottom=0.21)
     # plt.title('STFT Magnitude')
-    plt.xlabel('Frame')
-    plt.ylabel('Frequency')
+    plt.xlabel('Time(S)')
+    plt.ylabel('Frequency(Hz)')
+    plt.xticks(x1, x2)
+    plt.yticks((0,33,64,97,129), ("0","1k","2k","3k","4k"))
     plt.colorbar()
     plt.savefig(clean_mag_file)
     # plt.show()
