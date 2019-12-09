@@ -63,7 +63,10 @@ class RealVariables(object):
       self.lstm_layers.append(lstm)
 
     # FC
-    self.out_fc = tf.keras.layers.Dense(PARAM.fft_dot, name='se_net/out_fc')
+    if PARAM.net_out == 'mat_mask':
+      self.out_fc = tf.keras.layers.Dense(PARAM.fft_dot * PARAM.fft_dot, name='se_net/out_fc')
+    else:
+      self.out_fc = tf.keras.layers.Dense(PARAM.fft_dot, name='se_net/out_fc')
 
 
 class Module(object):
@@ -132,7 +135,7 @@ class Module(object):
         self.clean_var = np.array([[np.load('clean_var.npy')]])
         self.clean_std = np.sqrt(self.clean_var)
       self.clean_mag_batch = (self.clean_mag_batch - self.clean_mean) / self.clean_std
-    # self.debug_clean = self.clean_mag_batch
+    self.debug_clean = self.clean_mag_batch
     # self.debug_mixed = self.mixed_wav_batch
     self.clean_angle_batch = tf.math.angle(self.clean_spec_batch)
     if PARAM.mask_type == "IRM":
@@ -203,13 +206,17 @@ class Module(object):
     outputs = self.variables.out_fc(outputs)
     if PARAM.ReLU_outputs:
       outputs = tf.nn.relu(outputs)
-    outputs = tf.reshape(outputs, [_batch_size, -1, PARAM.fft_dot])
+    if PARAM.net_out == 'mat_mask':
+      outputs = tf.reshape(outputs, [_batch_size, -1, PARAM.fft_dot, PARAM.fft_dot])
+    else:
+      outputs = tf.reshape(outputs, [_batch_size, -1, PARAM.fft_dot])
     return outputs
 
 
   def real_networks_forward(self, mixed_wav_batch):
     mixed_spec_batch = misc_utils.tf_batch_stft(mixed_wav_batch, PARAM.frame_length, PARAM.frame_step)
     mixed_mag_batch = tf.math.abs(mixed_spec_batch)
+    self.debug_mixed = mixed_mag_batch
     if PARAM.mnv_mag_feature:
       if hasattr(self, 'mixed_mean') and hasattr(self, 'mixed_var'):
         pass
@@ -227,10 +234,18 @@ class Module(object):
     if PARAM.net_out == 'mask':
       self._mask = mask
       est_clean_mag_batch = tf.multiply(mask, mixed_mag_batch) # mag estimated
+    elif PARAM.net_out == 'mat_mask':
+      self._mask = mask
+      mixed_mag_batch_t = tf.expand_dims(mixed_mag_batch, -1)
+      # mask:[batch, frame, fft, fft], mixed_mag_batch_t:[batch, frame, fft, 1]
+      est_clean_mag_batch = tf.matmul(mask, mixed_mag_batch_t)
+      est_clean_mag_batch = tf.squeeze(est_clean_mag_batch, axis=[-1,])
     elif PARAM.net_out == 'spectrum':
       est_clean_mag_batch = mask
     else:
       raise ValueError('net_out %s type error.' % PARAM.net_out)
+
+    est_clean_mag_batch_noMVN = est_clean_mag_batch
 
     if PARAM.mnv_mag_feature:
       if hasattr(self, 'clean_mean') and hasattr(self, 'clean_var'):
@@ -247,7 +262,7 @@ class Module(object):
     _est_clean_wav_batch = misc_utils.tf_batch_istft(est_clean_spec_batch, PARAM.frame_length, PARAM.frame_step)
     est_clean_wav_batch = tf.slice(_est_clean_wav_batch, [0,0], [-1, _mixed_wav_len]) # if stft.pad_end=True, so est_wav may be longger than mixed.
 
-    return est_clean_mag_batch, est_clean_spec_batch, est_clean_wav_batch
+    return est_clean_mag_batch_noMVN, est_clean_spec_batch, est_clean_wav_batch
 
 
   @abc.abstractmethod

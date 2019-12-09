@@ -62,7 +62,7 @@ class BaseConfig(StaticKey):
   sdrv3_bias = None # float, a bias will be added before vector dot multiply.
   loss_name = ["real_net_mag_mse"]
   loss_weight = []
-  net_out = 'mask' # mask | spectrum
+  net_out = 'mask' # mask | spectrum | mat_mask
   frame_length = 256
   frame_step = 64
   no_cnn = False
@@ -113,7 +113,7 @@ class debug(p40):
 
 # region delete
 
-class WRL_PSM_ReLU_A10(p40): # run
+class WRL_PSM_ReLU_A10(p40): # done
   no_cnn = True
   blstm_layers = 2
   lstm_layers = 0
@@ -133,7 +133,7 @@ class WRL_PSM_ReLU_A50(p40): # done
   loss_name = ["real_net_reMagMse"]
   relative_loss_AFD = 50.0
 
-class WRL_PSM_ReLU_A100(p40): # run
+class WRL_PSM_ReLU_A100(p40): # done
   no_cnn = True
   blstm_layers = 2
   lstm_layers = 0
@@ -143,7 +143,7 @@ class WRL_PSM_ReLU_A100(p40): # run
   loss_name = ["real_net_reMagMse"]
   relative_loss_AFD = 100.0
 
-class WRL_PSM_ReLU_A500(p40): # run
+class WRL_PSM_ReLU_A500(p40): # done
   no_cnn = True
   blstm_layers = 2
   lstm_layers = 0
@@ -153,7 +153,7 @@ class WRL_PSM_ReLU_A500(p40): # run
   loss_name = ["real_net_reMagMse"]
   relative_loss_AFD = 500.0
 
-class WRL_IRM_ReLU_A50(p40): # run
+class WRL_IRM_ReLU_A50(p40): # done
   no_cnn = True
   blstm_layers = 2
   lstm_layers = 0
@@ -163,7 +163,7 @@ class WRL_IRM_ReLU_A50(p40): # run
   loss_name = ["real_net_reMagMse"]
   relative_loss_AFD = 50.0
 
-class WRL_IRM_ReLU_A100(p40): # run
+class WRL_IRM_ReLU_A100(p40): # done
   no_cnn = True
   blstm_layers = 2
   lstm_layers = 0
@@ -173,7 +173,7 @@ class WRL_IRM_ReLU_A100(p40): # run
   loss_name = ["real_net_reMagMse"]
   relative_loss_AFD = 100.0
 
-class WRL_IRM_ReLU_A500(p40): # run
+class WRL_IRM_ReLU_A500(p40): # done
   no_cnn = True
   blstm_layers = 2
   lstm_layers = 0
@@ -194,7 +194,7 @@ class MSE_IRM_ReLU(p40): # done p40
   ReLU_outputs = True
   loss_name = ["real_net_mag_mse"]
 
-class MSE_IRM_ReLU_MVN(p40): # done p40
+class MSE_IRM_ReLU_MVN(p40): # run p40
   no_cnn = True
   blstm_layers = 2
   lstm_layers = 0
@@ -273,7 +273,7 @@ class HRL_IRM_ReLU_A100(p40): # done
   loss_name = ["real_net_HardReMagMse"]
   relative_loss_AFD = 100.0
 
-class HRL_IRM_ReLU_A500(p40): # run
+class HRL_IRM_ReLU_A500(p40): # done
   no_cnn = True
   blstm_layers = 2
   lstm_layers = 0
@@ -333,7 +333,7 @@ class HRL_PSM_ReLU_A500(p40): # done
   loss_name = ["real_net_HardReMagMse"]
   relative_loss_AFD = 500.0
 
-class MSE_IRM_Real(p40): # run p40
+class MSE_IRM_Real(p40): # done p40
   no_cnn = True
   blstm_layers = 2
   lstm_layers = 0
@@ -342,7 +342,18 @@ class MSE_IRM_Real(p40): # run p40
   ReLU_outputs = False
   loss_name = ["real_net_mag_mse"]
 
-class MSE_PSM_Real(p40): # run p40
+class MSE_IRM_Real_matMask(p40): # run p40
+  no_cnn = True
+  blstm_layers = 2
+  lstm_layers = 0
+  model_name = "CNN_RNN_FC_REAL_MASK_MODEL"
+  mask_type = "IRM"
+  ReLU_outputs = False
+  net_out = 'mat_mask'
+  GPU_PARTION = 0.3
+  loss_name = ["real_net_mag_mse"]
+
+class MSE_PSM_Real(p40): # done p40
   no_cnn = True
   blstm_layers = 2
   lstm_layers = 0
@@ -351,7 +362,7 @@ class MSE_PSM_Real(p40): # run p40
   ReLU_outputs = False
   loss_name = ["real_net_mag_mse"]
 
-class HRL_IRM_Real_A05(p40): # run
+class HRL_IRM_Real_A05(p40): # done
   no_cnn = True
   blstm_layers = 2
   lstm_layers = 0
@@ -361,7 +372,7 @@ class HRL_IRM_Real_A05(p40): # run
   loss_name = ["real_net_HardReMagMse"]
   relative_loss_AFD = 5.0
 
-class HRL_IRM_Real_A10(p40): # run
+class HRL_IRM_Real_A10(p40): # done
   no_cnn = True
   blstm_layers = 2
   lstm_layers = 0
@@ -371,7 +382,7 @@ class HRL_IRM_Real_A10(p40): # run
   loss_name = ["real_net_HardReMagMse"]
   relative_loss_AFD = 10.0
 
-class HRL_IRM_Real_A50(p40): # run
+class HRL_IRM_Real_A50(p40): # done
   no_cnn = True
   blstm_layers = 2
   lstm_layers = 0
@@ -381,7 +392,7 @@ class HRL_IRM_Real_A50(p40): # run
   loss_name = ["real_net_HardReMagMse"]
   relative_loss_AFD = 50.0
 
-class HRL_IRM_Real_A100(p40): # run
+class HRL_IRM_Real_A100(p40): # done
   no_cnn = True
   blstm_layers = 2
   lstm_layers = 0
@@ -391,7 +402,7 @@ class HRL_IRM_Real_A100(p40): # run
   loss_name = ["real_net_HardReMagMse"]
   relative_loss_AFD = 100.0
 
-class HRL_IRM_Real_A500(p40): # run
+class HRL_IRM_Real_A500(p40): # done
   no_cnn = True
   blstm_layers = 2
   lstm_layers = 0
@@ -401,7 +412,7 @@ class HRL_IRM_Real_A500(p40): # run
   loss_name = ["real_net_HardReMagMse"]
   relative_loss_AFD = 500.0
 
-class HRL_PSM_Real_A05(p40): # run
+class HRL_PSM_Real_A05(p40): # done
   no_cnn = True
   blstm_layers = 2
   lstm_layers = 0
@@ -411,7 +422,7 @@ class HRL_PSM_Real_A05(p40): # run
   loss_name = ["real_net_HardReMagMse"]
   relative_loss_AFD = 5.0
 
-class HRL_PSM_Real_A10(p40): # run
+class HRL_PSM_Real_A10(p40): # done
   no_cnn = True
   blstm_layers = 2
   lstm_layers = 0
@@ -421,7 +432,7 @@ class HRL_PSM_Real_A10(p40): # run
   loss_name = ["real_net_HardReMagMse"]
   relative_loss_AFD = 10.0
 
-class HRL_PSM_Real_A50(p40): # run
+class HRL_PSM_Real_A50(p40): # done
   no_cnn = True
   blstm_layers = 2
   lstm_layers = 0
@@ -431,7 +442,7 @@ class HRL_PSM_Real_A50(p40): # run
   loss_name = ["real_net_HardReMagMse"]
   relative_loss_AFD = 50.0
 
-class HRL_PSM_Real_A100(p40): # run
+class HRL_PSM_Real_A100(p40): # done
   no_cnn = True
   blstm_layers = 2
   lstm_layers = 0
@@ -441,7 +452,7 @@ class HRL_PSM_Real_A100(p40): # run
   loss_name = ["real_net_HardReMagMse"]
   relative_loss_AFD = 100.0
 
-class HRL_PSM_Real_A500(p40): # run
+class HRL_PSM_Real_A500(p40): # done
   no_cnn = True
   blstm_layers = 2
   lstm_layers = 0
@@ -451,6 +462,6 @@ class HRL_PSM_Real_A500(p40): # run
   loss_name = ["real_net_HardReMagMse"]
   relative_loss_AFD = 500.0
 
-PARAM = HRL_PSM_Real_A500
+PARAM = MSE_IRM_ReLU_MVN
 
 # CUDA_VISIBLE_DEVICES=1 OMP_NUM_THREADS=4 python -m xxx._2_train

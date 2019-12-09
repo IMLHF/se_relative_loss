@@ -112,20 +112,39 @@ def eval_one_epoch(sess, val_model):
   total_loss = 0.0
   one_batch_time = time.time()
 
+  # clean_mag_mean = 0.0
+  # clean_mag_std = 0.0
+  # clean_mag_min = 0.0
+  # clean_mag_max = 0.0
+  # mixed_mag_mean = 0.0
+  # mixed_mag_std = 0.0
+  # mixed_mag_min = 0.0
+  # mixed_mag_max = 0.0
+
   i = 0
   total_i = PARAM.n_val_set_records//PARAM.batch_size
   while True:
     try:
       (
           loss,
-          #  debug_mag,
+          # debug_clean_mag,
+          # debug_mixed_mag,
       ) = sess.run([
           val_model.loss,
-          # val_model.debug_mag,
+          # val_model.debug_clean,
+          # val_model.debug_mixed
       ])
       # print("\n", loss, real_net_mag_mse, real_net_spec_mse, real_net_wavL1, real_net_wavL2, flush=True)
       # import numpy as np
-      # print(np.mean(debug_mag), np.var(debug_mag), np.min(debug_mag), np.max(debug_mag), loss, flush=True)
+      # clean_mag_mean += np.mean(debug_clean_mag)
+      # clean_mag_std += np.std(debug_clean_mag)
+      # clean_mag_min += np.min(debug_clean_mag)
+      # clean_mag_max += np.max(debug_clean_mag)
+      # mixed_mag_mean += np.mean(debug_mixed_mag)
+      # mixed_mag_std += np.std(debug_mixed_mag)
+      # mixed_mag_min += np.min(debug_mixed_mag)
+      # mixed_mag_max += np.max(debug_mixed_mag)
+
       total_loss += loss
       i += 1
       print("\r", end="")
@@ -141,6 +160,9 @@ def eval_one_epoch(sess, val_model):
   print("\r", end="")
   avg_loss = total_loss / i
   val_e_time = time.time()
+  # print(clean_mag_mean/i, clean_mag_std/i, clean_mag_min/i, clean_mag_max/i)
+  # print(mixed_mag_mean/i, mixed_mag_std/i, mixed_mag_min/i, mixed_mag_max/i, flush=True)
+  # print("---------------")
   return EvalOutputs(avg_loss=avg_loss,
                      cost_time=val_e_time-val_s_time)
 
