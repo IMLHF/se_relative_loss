@@ -245,7 +245,7 @@ class Module(object):
     else:
       raise ValueError('net_out %s type error.' % PARAM.net_out)
 
-    est_clean_mag_batch_noMVN = est_clean_mag_batch
+    est_clean_mag_batch_bak = est_clean_mag_batch
 
     if PARAM.mnv_mag_feature:
       if hasattr(self, 'clean_mean') and hasattr(self, 'clean_var'):
@@ -262,7 +262,7 @@ class Module(object):
     _est_clean_wav_batch = misc_utils.tf_batch_istft(est_clean_spec_batch, PARAM.frame_length, PARAM.frame_step)
     est_clean_wav_batch = tf.slice(_est_clean_wav_batch, [0,0], [-1, _mixed_wav_len]) # if stft.pad_end=True, so est_wav may be longger than mixed.
 
-    return est_clean_mag_batch_noMVN, est_clean_spec_batch, est_clean_wav_batch
+    return est_clean_mag_batch_bak, est_clean_spec_batch, est_clean_wav_batch
 
 
   @abc.abstractmethod
