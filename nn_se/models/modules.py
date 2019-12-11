@@ -217,6 +217,7 @@ class Module(object):
     mixed_spec_batch = misc_utils.tf_batch_stft(mixed_wav_batch, PARAM.frame_length, PARAM.frame_step)
     mixed_mag_batch = tf.math.abs(mixed_spec_batch)
     self.debug_mixed = mixed_mag_batch
+    mixed_mag_batch_noMVN = mixed_mag_batch
     if PARAM.mnv_mag_feature:
       if hasattr(self, 'mixed_mean') and hasattr(self, 'mixed_var'):
         pass
@@ -233,10 +234,10 @@ class Module(object):
 
     if PARAM.net_out == 'mask':
       self._mask = mask
-      est_clean_mag_batch = tf.multiply(mask, mixed_mag_batch) # mag estimated
+      est_clean_mag_batch = tf.multiply(mask, mixed_mag_batch_noMVN) # mag estimated
     elif PARAM.net_out == 'mat_mask':
       self._mask = mask
-      mixed_mag_batch_t = tf.expand_dims(mixed_mag_batch, -1)
+      mixed_mag_batch_t = tf.expand_dims(mixed_mag_batch_noMVN, -1)
       # mask:[batch, frame, fft, fft], mixed_mag_batch_t:[batch, frame, fft, 1]
       est_clean_mag_batch = tf.matmul(mask, mixed_mag_batch_t)
       est_clean_mag_batch = tf.squeeze(est_clean_mag_batch, axis=[-1,])
@@ -255,7 +256,7 @@ class Module(object):
         self.clean_mean = np.array([[np.load('clean_mean.npy')]])
         self.clean_var = np.array([[np.load('clean_var.npy')]])
         self.clean_std = np.sqrt(self.clean_var)
-      est_clean_mag_batch = est_clean_mag_batch * self.clean_std + self.clean_mean
+      est_clean_mag_batch_bak = (est_clean_mag_batch_bak - self.clean_mean) / self.clean_std
 
     est_clean_spec_batch = tf.complex(est_clean_mag_batch, 0.0) * tf.exp(tf.complex(0.0, self.mixed_angle_batch)) # complex
     _mixed_wav_len = tf.shape(mixed_wav_batch)[-1]
