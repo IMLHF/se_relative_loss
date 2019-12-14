@@ -30,7 +30,7 @@ def magnitude_spectrum_librosa_stft(signal, NFFT, overlap):
   return tmp.T
 
 def enhance_and_calcMetrics(noisy_and_ref):
-  figsize = (3.5, 2)
+  figsize = (2.8, 1.6)
   noisy_wav_dir, ref_wav_dir = noisy_and_ref
   noisy_wav, sr = audio.read_audio(noisy_wav_dir)
   ref_wav, sr = audio.read_audio(ref_wav_dir) if ref_wav_dir else (None, sr)
@@ -85,7 +85,7 @@ def enhance_and_calcMetrics(noisy_and_ref):
   # mask
   plt.figure(figsize=figsize)
   plt.pcolormesh(mask.T, vmin=-0.2, vmax=1.5)
-  plt.subplots_adjust(top=0.98, right=1, left=0.17, bottom=0.21)
+  plt.subplots_adjust(top=0.97, right=0.96, left=0.17, bottom=0.27)
   plt.xlabel('Time(S)')
   plt.ylabel('Frequency(Hz)')
   plt.xticks(x1, x2)
@@ -101,7 +101,7 @@ def enhance_and_calcMetrics(noisy_and_ref):
   plt.figure(figsize=figsize)
   # print(np.max(enhanced_mag), np.min(enhanced_mag))
   plt.pcolormesh(enhanced_mag.T, cmap='hot', vmin=-4.5, vmax=2.5)
-  plt.subplots_adjust(top=0.98, right=1, left=0.17, bottom=0.21)
+  plt.subplots_adjust(top=0.97, right=0.96, left=0.17, bottom=0.27)
   # plt.title('STFT Magnitude')
   plt.xlabel('Time(S)')
   plt.ylabel('Frequency(Hz)')
@@ -121,7 +121,7 @@ def enhance_and_calcMetrics(noisy_and_ref):
   noisy_mag = np.log(noisy_mag*3+1e-2)
   plt.figure(figsize=figsize)
   plt.pcolormesh(noisy_mag.T, cmap='hot', vmin=-4.5, vmax=2.5)
-  plt.subplots_adjust(top=0.98, right=1, left=0.17, bottom=0.21)
+  plt.subplots_adjust(top=0.97, right=0.96, left=0.17, bottom=0.27)
   # plt.title('STFT Magnitude')
   plt.xlabel('Time(S)')
   plt.ylabel('Frequency(Hz)')
@@ -139,7 +139,7 @@ def enhance_and_calcMetrics(noisy_and_ref):
     clean_mag = np.log(clean_mag*3+1e-2)
     plt.figure(figsize=figsize)
     plt.pcolormesh(clean_mag.T, cmap='hot', vmin=-4.5, vmax=2.5)
-    plt.subplots_adjust(top=0.98, right=1, left=0.17, bottom=0.21)
+    plt.subplots_adjust(top=0.97, right=0.96, left=0.17, bottom=0.27)
     # plt.title('STFT Magnitude')
     plt.xlabel('Time(S)')
     plt.ylabel('Frequency(Hz)')
