@@ -11,7 +11,7 @@ def plot_compare(exp_name, y1_RMAE, y2_RMAE, exp1_id, epx2_id):
   plt.plot(x, y2_RMAE, label=epx2_id, linewidth=1, color='red', marker='>',
            markerfacecolor='red', markersize=6)
   fig.autofmt_xdate()
-  plt.xlabel('Value interval')
+  plt.xlabel('Value Interval')
   plt.ylabel('RMAE')
   plt.legend()
   plt.subplots_adjust(top=0.98, right=0.96, left=0.23, bottom=0.31)

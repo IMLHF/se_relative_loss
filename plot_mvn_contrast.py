@@ -15,8 +15,8 @@ def plot_compare(metrics, y0, y1, y2, y3, y4,
   plt.plot(x, y4, label=exp4_name, linewidth=1, color='orange', marker='+',
            markerfacecolor='orange', markersize=8)
   # fig.autofmt_xdate()
-  plt.xlabel('SNR Condition')
-  plt.ylabel('%s Scores' % metrics)
+  plt.xlabel('SNR')
+  plt.ylabel('%s' % metrics)
   plt.legend()
   left = 0.14
   if metrics == 'SSNR':
