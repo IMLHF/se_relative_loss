@@ -119,33 +119,33 @@ def eval_one_record(clean_dir_and_noise_dir, mix_snr, save_dir=None):
   mixed_mag = smg.session.run(smg.model.calc_mag, feed_dict={smg.model.calc_mag_ph: mixed_wav_batch})[0]
   enhanced_mag = smg.session.run(smg.model.calc_mag, feed_dict={smg.model.calc_mag_ph: enhanced_wav_batch})[0]
 
-  # clean_dir_name = Path(clean_dir).stem
-  # noise_dir_name = Path(noise_dir).stem
-  # if save_dir is not None:
-  #   audio.write_audio(os.path.join(save_dir, clean_dir_name+'.wav'), clean_wav, PARAM.sampling_rate)
-  #   audio.write_audio(os.path.join(save_dir, clean_dir_name+'_'+noise_dir_name+'.wav'), mixed_wav, PARAM.sampling_rate)
-  #   audio.write_audio(os.path.join(save_dir, clean_dir_name+'_'+noise_dir_name+'_enhanced.wav'), enhanced_wav, PARAM.sampling_rate)
+  clean_dir_name = Path(clean_dir).stem
+  noise_dir_name = Path(noise_dir).stem
+  if save_dir is not None:
+    audio.write_audio(os.path.join(save_dir, clean_dir_name+'.wav'), clean_wav, PARAM.sampling_rate)
+    audio.write_audio(os.path.join(save_dir, clean_dir_name+'_'+noise_dir_name+'.wav'), mixed_wav, PARAM.sampling_rate)
+    audio.write_audio(os.path.join(save_dir, clean_dir_name+'_'+noise_dir_name+'_enhanced.wav'), enhanced_wav, PARAM.sampling_rate)
 
-  # pesq_noisy = calc_pesq(clean_wav, mixed_wav, PARAM.sampling_rate)
-  # stoi_noisy = calc_stoi(clean_wav, mixed_wav, PARAM.sampling_rate)
-  # sdr_noisy = calc_sdr(clean_wav, mixed_wav, PARAM.sampling_rate)
-  # ssnr_noisy = calc_SegSNR(clean_wav/np.max(np.abs(clean_wav)),
-  #                          mixed_wav/np.max(np.abs(mixed_wav)),
-  #                          PARAM.frame_length, PARAM.frame_length)
-  pesq_noisy = 0
-  stoi_noisy = 0
-  sdr_noisy = 0
-  ssnr_noisy = 0
-  # pesq_enhanced = calc_pesq(clean_wav, enhanced_wav, PARAM.sampling_rate)
-  # stoi_enhanced = calc_stoi(clean_wav, enhanced_wav, PARAM.sampling_rate)
-  # sdr_enhanced = calc_sdr(clean_wav, enhanced_wav, PARAM.sampling_rate)
-  # ssnr_enhanced = calc_SegSNR(clean_wav/np.max(np.abs(clean_wav)),
-  #                             enhanced_wav/np.max(np.abs(enhanced_wav)),
-  #                             PARAM.frame_length, PARAM.frame_length)
-  pesq_enhanced = 0
-  stoi_enhanced = 0
-  sdr_enhanced = 0
-  ssnr_enhanced = 0
+  pesq_noisy = calc_pesq(clean_wav, mixed_wav, PARAM.sampling_rate)
+  stoi_noisy = calc_stoi(clean_wav, mixed_wav, PARAM.sampling_rate)
+  sdr_noisy = calc_sdr(clean_wav, mixed_wav, PARAM.sampling_rate)
+  ssnr_noisy = calc_SegSNR(clean_wav/np.max(np.abs(clean_wav)),
+                           mixed_wav/np.max(np.abs(mixed_wav)),
+                           PARAM.frame_length, PARAM.frame_length)
+  # pesq_noisy = 0
+  # stoi_noisy = 0
+  # sdr_noisy = 0
+  # ssnr_noisy = 0
+  pesq_enhanced = calc_pesq(clean_wav, enhanced_wav, PARAM.sampling_rate)
+  stoi_enhanced = calc_stoi(clean_wav, enhanced_wav, PARAM.sampling_rate)
+  sdr_enhanced = calc_sdr(clean_wav, enhanced_wav, PARAM.sampling_rate)
+  ssnr_enhanced = calc_SegSNR(clean_wav/np.max(np.abs(clean_wav)),
+                              enhanced_wav/np.max(np.abs(enhanced_wav)),
+                              PARAM.frame_length, PARAM.frame_length)
+  # pesq_enhanced = 0
+  # stoi_enhanced = 0
+  # sdr_enhanced = 0
+  # ssnr_enhanced = 0
 
   mag_v_range_reMAE_noisy = get_mag_v_range_reMAE(clean_mag/np.max(clean_mag), mixed_mag/np.max(mixed_mag), PARAM.mag_reMAE_v_range)
   mag_v_range_reMAE_enhanced = get_mag_v_range_reMAE(clean_mag/np.max(clean_mag), enhanced_mag/np.max(enhanced_mag), PARAM.mag_reMAE_v_range)
