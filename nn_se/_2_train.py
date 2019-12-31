@@ -106,6 +106,17 @@ class EvalOutputs(
                            ("avg_loss", "cost_time"))):
   pass
 
+def get_propotion(mag):
+  n01 = np.sum(np.where(mag<0.1, 1, 0))
+  n13 = np.sum(np.where((mag>=0.1) & (mag<0.3), 1, 0))
+  n35 = np.sum(np.where((mag>=0.3) & (mag<0.5), 1, 0))
+  n57 = np.sum(np.where((mag>=0.5) & (mag<0.7), 1, 0))
+  n79 = np.sum(np.where((mag>=0.7) & (mag<0.9), 1, 0))
+  n90 = np.sum(np.where(mag>=0.9, 1, 0))
+  p = np.array([n01, n13, n35, n57, n79, n90], dtype=np.float32)
+  p /= np.sum(np.ones_like(mag), dtype=np.float32)
+  # print(p)
+  return p
 
 def eval_one_epoch(sess, val_model):
   val_s_time = time.time()
@@ -120,6 +131,9 @@ def eval_one_epoch(sess, val_model):
   # mixed_mag_std = 0.0
   # mixed_mag_min = 0.0
   # mixed_mag_max = 0.0
+
+  # propotion_clean = np.zeros([6])
+  # propotion_mixed = np.zeros([6])
 
   i = 0
   total_i = PARAM.n_val_set_records//PARAM.batch_size
@@ -145,6 +159,9 @@ def eval_one_epoch(sess, val_model):
       # mixed_mag_min += np.min(debug_mixed_mag)
       # mixed_mag_max += np.max(debug_mixed_mag)
 
+      # propotion_clean += get_propotion(debug_clean_mag)
+      # propotion_mixed += get_propotion(debug_mixed_mag)
+
       total_loss += loss
       i += 1
       print("\r", end="")
@@ -163,6 +180,10 @@ def eval_one_epoch(sess, val_model):
   # print(clean_mag_mean/i, clean_mag_std/i, clean_mag_min/i, clean_mag_max/i)
   # print(mixed_mag_mean/i, mixed_mag_std/i, mixed_mag_min/i, mixed_mag_max/i, flush=True)
   # print("---------------")
+  # propotion_clean /= i
+  # propotion_mixed /= i
+  # print("pclean:", propotion_clean)
+  # print('pmixed:', propotion_mixed)
   return EvalOutputs(avg_loss=avg_loss,
                      cost_time=val_e_time-val_s_time)
 
