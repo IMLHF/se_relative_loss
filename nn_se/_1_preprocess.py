@@ -70,7 +70,7 @@ def prepare_train_validation_test_set(sub_dataset_name): # for train/val/test
     for speech_idx, noise_idx in zip(speech_idxs, noise_idxs):
       speech_path = speech_list[speech_idx]
       noise_path = noise_list[noise_idx]
-      record_line = str(speech_path)+"|"+str(noise_path)
+      record_line = str(speech_path)+"|"+str(noise_path) # BUG：Records may be repeated
       if sub_dataset_name in [train_name, validation_name]:
         assert PARAM.train_val_snr[0]<=PARAM.train_val_snr[1], "train_val_snr error."
         snr = np.random.randint(PARAM.train_val_snr[0], PARAM.train_val_snr[1]+1)
