@@ -194,7 +194,7 @@ class MSE_IRM_ReLU(p40): # done p40
   ReLU_outputs = True
   loss_name = ["real_net_mag_mse"]
 
-class MSE_IRM_ReLU_MVN(p40): # run p40
+class MSE_IRM_ReLU_maskRawMVN(p40): # done p40 /MSE_IRM_ReLU_MVN
   no_cnn = True
   blstm_layers = 2
   lstm_layers = 0
@@ -212,6 +212,16 @@ class MSE_PSM_ReLU(p40): # done p40
   mask_type = "PSM"
   ReLU_outputs = True
   loss_name = ["real_net_mag_mse"]
+
+class MSE_PSM_ReLU_maskRawMVN(p40): # done p40
+  no_cnn = True
+  blstm_layers = 2
+  lstm_layers = 0
+  model_name = "CNN_RNN_FC_REAL_MASK_MODEL"
+  mask_type = "PSM"
+  ReLU_outputs = True
+  loss_name = ["real_net_mag_mse"]
+  mnv_mag_feature = True
 
 class HRL_IRM_ReLU_AINF(p40): # done
   no_cnn = True
@@ -342,7 +352,17 @@ class MSE_IRM_Real(p40): # done p40
   ReLU_outputs = False
   loss_name = ["real_net_mag_mse"]
 
-class MSE_IRM_Real_matMask(p40): # run p40
+class MSE_IRM_Real_MVN(p40): # run p40
+  no_cnn = True
+  blstm_layers = 2
+  lstm_layers = 0
+  model_name = "CNN_RNN_FC_REAL_MASK_MODEL"
+  mask_type = "IRM"
+  ReLU_outputs = False
+  loss_name = ["real_net_mag_mse"]
+  mnv_mag_feature = True
+
+class MSE_IRM_Real_matMask(p40): # done p40
   no_cnn = True
   blstm_layers = 2
   lstm_layers = 0
@@ -361,6 +381,16 @@ class MSE_PSM_Real(p40): # done p40
   mask_type = "PSM"
   ReLU_outputs = False
   loss_name = ["real_net_mag_mse"]
+
+class MSE_PSM_Real_MVN(p40): # run p40
+  no_cnn = True
+  blstm_layers = 2
+  lstm_layers = 0
+  model_name = "CNN_RNN_FC_REAL_MASK_MODEL"
+  mask_type = "PSM"
+  ReLU_outputs = False
+  loss_name = ["real_net_mag_mse"]
+  mnv_mag_feature = True
 
 class HRL_IRM_Real_A05(p40): # done
   no_cnn = True
@@ -462,6 +492,27 @@ class HRL_PSM_Real_A500(p40): # done
   loss_name = ["real_net_HardReMagMse"]
   relative_loss_AFD = 500.0
 
-PARAM = MSE_IRM_ReLU_MVN
+class HRL_IRM_Real_A10_16k(p40):
+  datasets_name = 'vctk_musan_datasets_16k'
+  sampling_rate = 16000
+  frame_length = 512
+  frame_step = 128
+  blstm_layers = 2
+  lstm_layers = 0
+  rnn_units = 512
+  rlstmCell_implementation = 1
+  fft_dot = 257
+
+  no_cnn = True
+  blstm_layers = 2
+  lstm_layers = 0
+  model_name = "CNN_RNN_FC_REAL_MASK_MODEL"
+  mask_type = "IRM"
+  ReLU_outputs = False
+  loss_name = ["real_net_HardReMagMse"]
+  relative_loss_AFD = 10.0
+
+
+PARAM = HRL_IRM_Real_A10_16k
 
 # CUDA_VISIBLE_DEVICES=1 OMP_NUM_THREADS=4 python -m xxx._2_train
