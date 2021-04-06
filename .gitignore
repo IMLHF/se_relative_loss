@@ -6,3 +6,4 @@ __pycache__
 _pesq*
 FLAGS.py-
 *.json
+*.sh
